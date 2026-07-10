@@ -20,49 +20,22 @@ Understanding the complete scaling pipeline makes troubleshooting significantly 
 
 ---
 
-# The Troubleshooting Pipeline
+## The Troubleshooting Pipeline
 
 When a workload does not scale as expected, verify each stage of the process.
 
 ```mermaid
 flowchart LR
 
-ExternalSystem["External System"]
+ExternalSystem["External System"] --> Trigger --> KEDA --> MetricsAdapter["Metrics Adapter"] --> HPA --> Deployment --> Pods --> Scheduler
 
--->
-
-Trigger
-
--->
-
-KEDA
-
--->
-
-MetricsAdapter["Metrics Adapter"]
-
--->
-
-HPA
-
--->
-
-Deployment
-
--->
-
-Pods
-
--->
-
-Scheduler
 ```
 
 If any component in this chain fails, autoscaling may stop working.
 
 ---
 
-# Problem 1 — Pods Never Scale Up
+## Problem 1 — Pods Never Scale Up
 
 ### Symptoms
 
@@ -99,7 +72,7 @@ Look for:
 
 ---
 
-# Problem 2 — Pods Never Scale Down
+## Problem 2 — Pods Never Scale Down
 
 ### Symptoms
 
@@ -125,7 +98,7 @@ Remember that KEDA intentionally delays scale-down to prevent oscillation.
 
 ---
 
-# Problem 3 — HPA Not Created
+## Problem 3 — HPA Not Created
 
 Every ScaledObject should automatically create a Horizontal Pod Autoscaler.
 
@@ -145,7 +118,7 @@ The HPA is created automatically and should never need to be created manually.
 
 ---
 
-# Problem 4 — Authentication Errors
+## Problem 4 — Authentication Errors
 
 Symptoms include:
 
@@ -174,7 +147,7 @@ Common issues include:
 
 ---
 
-# Problem 5 — External System Unavailable
+## Problem 5 — External System Unavailable
 
 KEDA depends on external services.
 
@@ -202,9 +175,11 @@ Verify connectivity between:
 - external service;
 - authentication endpoint.
 
+If a scaler outage is a realistic scenario for your environment, configure the ScaledObject's `fallback` section — after a configurable number of consecutive failures, KEDA applies a known-safe replica count instead of leaving the workload frozen at its last value.
+
 ---
 
-# Problem 6 — Metrics Not Available
+## Problem 6 — Metrics Not Available
 
 The Metrics Adapter exposes external metrics to Kubernetes.
 
@@ -224,7 +199,7 @@ If metrics cannot be exposed, the Horizontal Pod Autoscaler cannot calculate rep
 
 ---
 
-# Problem 7 — Pods Remain Pending
+## Problem 7 — Pods Remain Pending
 
 Sometimes KEDA successfully scales the Deployment.
 
@@ -253,7 +228,7 @@ Continue troubleshooting using normal Kubernetes scheduling diagnostics.
 
 ---
 
-# Problem 8 — Scale to Zero Does Not Work
+## Problem 8 — Scale to Zero Does Not Work
 
 Symptoms:
 
@@ -285,7 +260,7 @@ Also confirm that the external metric has actually reached zero.
 
 ---
 
-# Useful Commands
+## Useful Commands
 
 Useful Kubernetes commands include:
 
@@ -311,18 +286,14 @@ These commands identify the majority of production issues.
 
 ---
 
-# A Systematic Troubleshooting Approach
+## A Systematic Troubleshooting Approach
 
 When autoscaling fails, follow a consistent sequence.
 
 ```mermaid
 flowchart TD
 
-A[External Event]
-
--->
-
-B{Trigger Working?}
+A[External Event] --> B{Trigger Working?}
 
 B -->|No| C[Check External System]
 
@@ -349,7 +320,7 @@ This workflow helps isolate failures quickly and avoids troubleshooting multiple
 
 ---
 
-# Production Recommendations
+## Production Recommendations
 
 When operating KEDA in production:
 
@@ -364,7 +335,7 @@ Observability is essential for reliable autoscaling.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Troubleshoot the autoscaling pipeline one component at a time, starting with the external trigger and ending with the running Pods.
@@ -391,7 +362,7 @@ Observability is essential for reliable autoscaling.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - Troubleshooting KEDA requires understanding the complete autoscaling pipeline.
 - Most scaling issues originate from trigger configuration, authentication, or unavailable external systems.

@@ -9,42 +9,23 @@ A common misconception is that **KEDA replaces the Horizontal Pod Autoscaler (HP
 
 In reality, KEDA is built **on top of** the HPA.
 
-KEDA does not scale Deployments directly.
+For regular scaling, KEDA does not scale Deployments directly. Instead, it creates and manages a Horizontal Pod Autoscaler that uses **external metrics** instead of traditional CPU or memory metrics.
 
-Instead, it creates and manages a Horizontal Pod Autoscaler that uses **external metrics** instead of traditional CPU or memory metrics.
+There is exactly **one exception**: the HPA cannot scale below one replica, so the 0 ↔ 1 transition (activation and deactivation) is performed by the **KEDA Operator itself**, which modifies the Deployment's replica count directly. Everything between 1 and `maxReplicaCount` belongs to the HPA.
 
 Understanding this relationship is essential for understanding how KEDA works internally.
 
 ---
 
-# The Scaling Pipeline
+## The Scaling Pipeline
 
 The complete autoscaling pipeline is shown below.
 
 ```mermaid
 flowchart LR
 
-ExternalEvent["External Event"]
+ExternalEvent["External Event"] --> KEDA --> ExternalMetric["External Metric"] --> HorizontalPodAutoscaler --> Deployment --> Pods
 
--->
-
-KEDA
-
--->
-
-ExternalMetric["External Metric"]
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-Pods
 ```
 
 KEDA is responsible for detecting workload demand.
@@ -53,7 +34,7 @@ The HPA remains responsible for calculating and applying the desired replica cou
 
 ---
 
-# Responsibilities
+## Responsibilities
 
 The two components have clearly separated responsibilities.
 
@@ -61,14 +42,14 @@ The two components have clearly separated responsibilities.
 |------|----------------------------|
 | Reads external systems | Calculates desired replicas |
 | Collects business metrics | Updates Deployment replicas |
-| Creates and manages the HPA | Scales Pods |
-| Supports Scale to Zero | Performs scaling decisions |
+| Creates and manages the HPA | Scales Pods between 1 and N |
+| Scales between 0 and 1 (activation) | Cannot scale below 1 replica |
 
 Each controller focuses on a single responsibility.
 
 ---
 
-# Why Doesn't KEDA Scale Pods Directly?
+## Why Doesn't KEDA Scale Pods Directly?
 
 At first glance, it might seem simpler for KEDA to modify Deployments itself.
 
@@ -85,7 +66,7 @@ Rather than replacing Kubernetes functionality, KEDA extends it.
 
 ---
 
-# Example Workflow
+## Example Workflow
 
 Suppose a RabbitMQ queue suddenly receives new messages.
 
@@ -125,7 +106,7 @@ The HPA remains the component responsible for changing the Deployment replica co
 
 ---
 
-# HPA Creation
+## HPA Creation
 
 When a ScaledObject is created, KEDA automatically creates a corresponding Horizontal Pod Autoscaler.
 
@@ -149,7 +130,7 @@ There is no need to create it manually.
 
 ---
 
-# Automatic Synchronization
+## Automatic Synchronization
 
 Whenever the ScaledObject changes:
 
@@ -171,7 +152,7 @@ Administrators typically interact only with the ScaledObject.
 
 ---
 
-# Complete Scaling Example
+## Complete Scaling Example
 
 The following sequence illustrates a complete event-driven scaling operation.
 
@@ -196,7 +177,7 @@ Each component performs exactly one task.
 
 ---
 
-# Combining with Resource Metrics
+## Combining with Resource Metrics
 
 KEDA is designed for **external metrics**.
 
@@ -230,7 +211,7 @@ Applications can therefore scale according to both infrastructure utilization an
 
 ---
 
-# Interaction with the Cluster Autoscaler
+## Interaction with the Cluster Autoscaler
 
 Suppose KEDA increases the replica count from:
 
@@ -263,38 +244,15 @@ The complete autoscaling chain becomes:
 ```mermaid
 flowchart LR
 
-ExternalEvent
+ExternalEvent --> KEDA --> HPA --> Deployment --> Scheduler --> ClusterAutoscaler --> WorkerNodes["Worker Nodes"]
 
--->
-
-KEDA
-
--->
-
-HPA
-
--->
-
-Deployment
-
--->
-
-Scheduler
-
--->
-
-ClusterAutoscaler
-
--->
-
-WorkerNodes["Worker Nodes"]
 ```
 
 This demonstrates how KEDA integrates with the broader Kubernetes autoscaling ecosystem.
 
 ---
 
-# Why This Architecture Works
+## Why This Architecture Works
 
 Separating responsibilities offers several advantages.
 
@@ -309,7 +267,7 @@ This modular approach follows Kubernetes' controller design philosophy, where ea
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Treat the ScaledObject as the primary configuration resource. Avoid manually modifying the Horizontal Pod Autoscaler created by KEDA.
@@ -336,11 +294,11 @@ This modular approach follows Kubernetes' controller design philosophy, where ea
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - KEDA works alongside the Horizontal Pod Autoscaler rather than replacing it.
 - KEDA detects external events and exposes them as metrics.
-- The HPA performs the actual replica calculations and updates Deployments.
+- The HPA performs the replica calculations between 1 and N; the KEDA Operator handles the 0 ↔ 1 transitions directly.
 - KEDA automatically creates and manages the required HPA.
 - The Scheduler and Cluster Autoscaler continue to operate normally after replica counts change.
 - This layered architecture keeps Kubernetes modular, extensible, and easy to maintain.

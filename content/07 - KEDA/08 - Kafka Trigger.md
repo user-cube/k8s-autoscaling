@@ -21,7 +21,7 @@ This allows Kubernetes to react directly to the health of the streaming pipeline
 
 ---
 
-# Why Consumer Lag Matters
+## Why Consumer Lag Matters
 
 Kafka applications are typically built around producers and consumers.
 
@@ -52,7 +52,7 @@ is known as **Consumer Lag**.
 
 ---
 
-# What Is Consumer Lag?
+## What Is Consumer Lag?
 
 Consumer lag represents the number of messages that have not yet been processed.
 
@@ -82,39 +82,20 @@ A growing lag usually indicates that consumers cannot keep up with incoming traf
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-Producer
+Producer --> KafkaTopic["Kafka Topic"] --> KEDA --> HorizontalPodAutoscaler --> Deployment --> ConsumerPods["Consumer Pods"]
 
--->
-
-KafkaTopic["Kafka Topic"]
-
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-ConsumerPods["Consumer Pods"]
 ```
 
 KEDA continuously monitors consumer lag and exposes it as an external metric to the Horizontal Pod Autoscaler.
 
 ---
 
-# Why Not Scale Using CPU?
+## Why Not Scale Using CPU?
 
 Imagine a consumer application.
 
@@ -148,7 +129,7 @@ The Kafka Trigger reacts immediately because it monitors backlog rather than pro
 
 ---
 
-# Basic Configuration
+## Basic Configuration
 
 A simplified Kafka trigger might look like this.
 
@@ -176,7 +157,7 @@ This configuration tells KEDA:
 
 ---
 
-# Scaling Example
+## Scaling Example
 
 Suppose the application currently has:
 
@@ -207,18 +188,18 @@ Consumer Lag
 
 ↓
 
-HPA
+ceil(5,000 / 100) = 50
 
 ↓
 
-15 Pods
+50 Pods (capped by maxReplicaCount and by the topic's partition count)
 ```
 
 The additional consumers process partitions in parallel, reducing the backlog much more quickly.
 
 ---
 
-# Scaling Down
+## Scaling Down
 
 As messages are processed:
 
@@ -254,7 +235,7 @@ the Deployment eventually scales to zero when no messages remain.
 
 ---
 
-# Consumer Groups
+## Consumer Groups
 
 The Kafka Trigger scales **consumer groups**, not individual consumers.
 
@@ -278,7 +259,27 @@ Adding Pods increases parallelism while preserving Kafka's consumer group semant
 
 ---
 
-# Typical Use Cases
+## The Partition Limit
+
+By default, KEDA **never scales a consumer group beyond the number of partitions in the topic** (`allowIdleConsumers: false`).
+
+A consumer beyond the partition count would receive no partition assignment and sit idle — so KEDA caps the replica count at the partition count, regardless of how large the lag becomes.
+
+```text
+Topic: 12 partitions
+
+Lag suggests: 50 consumers
+
+↓
+
+KEDA caps at 12 Pods
+```
+
+Set `allowIdleConsumers: true` only when idle consumers are acceptable (for example, to speed up rebalancing after failures). The real fix for a partition-limited workload is increasing the topic's partition count.
+
+---
+
+## Typical Use Cases
 
 The Kafka Trigger is commonly used for:
 
@@ -295,7 +296,7 @@ These systems often process millions of events per day.
 
 ---
 
-# Queue Length vs Consumer Lag
+## Queue Length vs Consumer Lag
 
 Although RabbitMQ and Kafka are both messaging systems, their scaling metrics differ.
 
@@ -310,7 +311,7 @@ Both metrics measure pending work, but they reflect different messaging models.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Scale according to consumer lag rather than CPU utilization. Lag provides a much more accurate representation of streaming workload.
@@ -337,7 +338,7 @@ Both metrics measure pending work, but they reflect different messaging models.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - The Kafka Trigger scales workloads according to consumer lag.
 - Consumer lag represents the amount of unprocessed work remaining in Kafka.

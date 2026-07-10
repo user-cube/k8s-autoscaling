@@ -45,9 +45,10 @@ KEDA sits between external event sources and the Horizontal Pod Autoscaler.
 
 | Component | Responsibility |
 |---|---|
-| KEDA Operator | Monitors ScaledObjects and external systems |
+| KEDA Operator | Monitors ScaledObjects and external systems; scales workloads between 0 and 1 |
 | Metrics Adapter | Exposes external metrics to Kubernetes |
-| Horizontal Pod Autoscaler | Performs scaling |
+| Admission Webhooks | Validate KEDA resources and prevent conflicting configurations (KEDA 2.10+) |
+| Horizontal Pod Autoscaler | Performs scaling between 1 and N |
 | Target Workload | Deployment, StatefulSet, or Job |
 
 ---
@@ -68,7 +69,13 @@ flowchart LR
 ExternalMetric["External Metric"] --> MetricsAdapter[KEDA Metrics Adapter] --> ExternalMetricsAPI["External Metrics API"] --> HPA
 ```
 
-From the HPA's perspective, KEDA behaves like any other metrics provider.
+From the HPA's perspective, KEDA behaves like any other metrics provider — the HPA **queries** the External Metrics API on its own control-loop cycle; KEDA never pushes values into it.
+
+---
+
+## Admission Webhooks
+
+Since KEDA 2.10, a third component validates KEDA resources at creation time. It rejects misconfigurations before they reach the cluster — for example, two ScaledObjects targeting the same workload, which would create conflicting HPAs.
 
 ---
 
@@ -95,9 +102,9 @@ participant Adapter as Metrics Adapter
 participant HPA
 participant Deployment
 
-Queue->>Operator: Queue Length
-Operator->>Adapter: External Metric
-Adapter->>HPA: Metric Available
+Operator->>Queue: Poll queue length
+HPA->>Adapter: Query external metric
+Adapter-->>HPA: Metric value
 HPA->>Deployment: Increase Replicas
 Deployment->>Deployment: Create Pods
 ```

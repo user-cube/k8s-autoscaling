@@ -80,7 +80,7 @@ Unlike the standard HPA, KEDA supports **scaling all the way to zero**.
 | AWS SQS | Queue depth |
 | PostgreSQL | Query count |
 | Cron | Scheduled execution |
-| HTTP | Incoming request rate |
+| HTTP (via the KEDA HTTP Add-on) | Incoming request rate |
 
 Every event source is implemented as a **Scaler**.
 
@@ -111,7 +111,7 @@ The standard HPA requires `minReplicas: 1`. KEDA supports `minReplicas: 0`, sign
 External Metrics → KEDA → Creates/manages HPA → HPA scales Pods
 ```
 
-From Kubernetes' perspective, scaling is still performed by the HPA. KEDA provides the metrics required to make better scaling decisions.
+From Kubernetes' perspective, scaling between 1 and N replicas is still performed by the HPA — KEDA provides the metrics required to make better scaling decisions. The one exception is the 0 ↔ 1 transition: since the HPA cannot scale below one replica, the KEDA Operator performs it directly.
 
 ---
 

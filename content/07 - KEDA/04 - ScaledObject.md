@@ -20,7 +20,7 @@ Without a ScaledObject, KEDA has no knowledge of the workload or the external sy
 
 ---
 
-# What Is a ScaledObject?
+## What Is a ScaledObject?
 
 A ScaledObject is a Kubernetes **Custom Resource Definition (CRD)**.
 
@@ -48,28 +48,13 @@ The ScaledObject connects an application with one or more external event sources
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-ScaledObject
+ScaledObject --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
 
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-Pods
 ```
 
 The ScaledObject defines the desired behavior.
@@ -78,7 +63,7 @@ KEDA converts that definition into a Horizontal Pod Autoscaler.
 
 ---
 
-# Basic Structure
+## Basic Structure
 
 A ScaledObject contains four main sections.
 
@@ -106,7 +91,7 @@ Although many optional fields exist, these are the most important.
 
 ---
 
-# scaleTargetRef
+## scaleTargetRef
 
 The **scaleTargetRef** identifies the Kubernetes workload that KEDA should scale.
 
@@ -136,7 +121,7 @@ Whenever KEDA decides to scale, this Deployment is updated.
 
 ---
 
-# pollingInterval
+## pollingInterval
 
 KEDA periodically checks the configured event source.
 
@@ -162,9 +147,9 @@ Short polling intervals produce faster scaling but increase communication with e
 
 ---
 
-# cooldownPeriod
+## cooldownPeriod
 
-After workload decreases, KEDA waits before scaling down.
+When all triggers become inactive, KEDA waits before scaling the workload **to zero**.
 
 Example:
 
@@ -185,14 +170,17 @@ Wait
 
 ↓
 
-Scale Down
+Scale 1 → 0
 ```
 
-Cooldown periods reduce unnecessary scaling caused by temporary inactivity.
+> [!note]
+> The `cooldownPeriod` applies **only to the final scale-to-zero step** (1 → 0), performed by the KEDA Operator. Scale-down between N and 1 is handled by the generated HPA and follows its stabilization window, configurable via `advanced.horizontalPodAutoscalerConfig`.
+
+Cooldown periods reduce unnecessary deactivation caused by temporary inactivity.
 
 ---
 
-# minReplicaCount
+## minReplicaCount
 
 KEDA allows workloads to start from zero replicas.
 
@@ -220,7 +208,7 @@ This is one of KEDA's most important advantages over a standard HPA.
 
 ---
 
-# maxReplicaCount
+## maxReplicaCount
 
 KEDA also limits maximum scaling.
 
@@ -248,7 +236,33 @@ Maximum limits protect the cluster from excessive scaling.
 
 ---
 
-# Triggers
+## Advanced Fields
+
+Three optional fields are worth knowing in production:
+
+```yaml
+spec:
+
+  fallback:
+    failureThreshold: 3
+    replicas: 5
+
+  idleReplicaCount: 0
+
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+```
+
+- **`fallback`** — if KEDA fails to read the external system `failureThreshold` consecutive times, the workload is set to a known-safe replica count instead of being left frozen at its last value.
+- **`idleReplicaCount`** — replica count while every trigger is inactive (currently only `0` is supported).
+- **`advanced.horizontalPodAutoscalerConfig`** — full control over the HPA that KEDA generates, using the same `behavior` syntax (stabilization windows, scaling policies) as a native HPA.
+
+---
+
+## Triggers
 
 Triggers define **what KEDA should monitor**.
 
@@ -275,7 +289,7 @@ Every ScaledObject contains at least one trigger.
 
 ---
 
-# Complete Example
+## Complete Example
 
 The following example scales a Deployment according to the number of RabbitMQ messages.
 
@@ -319,41 +333,26 @@ This configuration expresses:
 - check every 30 seconds;
 - scale from zero;
 - allow up to 20 replicas;
-- add replicas when the queue exceeds 50 messages.
+- target approximately **50 messages per replica** — e.g. 600 messages → `ceil(600 / 50)` = 12 Pods.
 
 ---
 
-# Lifecycle
+## Lifecycle
 
 The lifecycle of a ScaledObject is straightforward.
 
 ```mermaid
 flowchart LR
 
-Create["Create ScaledObject"]
+Create["Create ScaledObject"] --> Operator["KEDA Operator"] --> HPA["Create HPA"] --> Monitor["Monitor Trigger"] --> Scale["Scale Deployment"]
 
--->
-
-Operator["KEDA Operator"]
-
--->
-
-HPA["Create HPA"]
-
--->
-
-Monitor["Monitor Trigger"]
-
--->
-
-Scale["Scale Deployment"]
 ```
 
 The Operator continuously reconciles the ScaledObject with the actual cluster state.
 
 ---
 
-# Multiple Triggers
+## Multiple Triggers
 
 A single ScaledObject may monitor multiple event sources.
 
@@ -395,7 +394,7 @@ This allows workloads to react to several business conditions simultaneously.
 
 ---
 
-# Updating a ScaledObject
+## Updating a ScaledObject
 
 Scaling behavior can be modified without changing the application.
 
@@ -421,7 +420,7 @@ No application restart is required.
 
 ---
 
-# Relationship with the HPA
+## Relationship with the HPA
 
 A common misconception is that the ScaledObject replaces the Horizontal Pod Autoscaler.
 
@@ -447,7 +446,7 @@ The HPA remains the Kubernetes component responsible for changing the number of 
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Keep each ScaledObject focused on a single application or workload. This simplifies troubleshooting and operational management.
@@ -474,7 +473,7 @@ The HPA remains the Kubernetes component responsible for changing the number of 
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - The ScaledObject is KEDA's primary configuration resource.
 - It links a Kubernetes workload with one or more external event sources.

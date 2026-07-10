@@ -15,7 +15,7 @@ Without a trigger, KEDA has no information about external demand.
 
 ---
 
-# What Is a Trigger?
+## What Is a Trigger?
 
 Conceptually, a trigger answers one simple question:
 
@@ -34,69 +34,35 @@ Whenever the trigger condition is met, KEDA begins the scaling process.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-ExternalSystem["External System"]
+ExternalSystem["External System"] --> Trigger --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
 
--->
-
-Trigger
-
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-Pods
 ```
 
 The trigger acts as the bridge between an external event source and Kubernetes.
 
 ---
 
-# Trigger Lifecycle
+## Trigger Lifecycle
 
 Every trigger follows the same workflow.
 
 ```mermaid
 flowchart LR
 
-Read["Read External System"]
+Read["Read External System"] --> Evaluate["Evaluate Threshold"] --> Metric["Generate Metric"] --> HPA["Horizontal Pod Autoscaler"] --> Scale["Scale Workload"]
 
--->
-
-Evaluate["Evaluate Threshold"]
-
--->
-
-Metric["Generate Metric"]
-
--->
-
-HPA["Horizontal Pod Autoscaler"]
-
--->
-
-Scale["Scale Workload"]
 ```
 
 Although each trigger communicates with a different external system, their behavior is remarkably consistent.
 
 ---
 
-# Trigger Components
+## Trigger Components
 
 Every trigger contains three basic elements.
 
@@ -118,7 +84,7 @@ These fields define:
 
 ---
 
-# Trigger Type
+## Trigger Type
 
 The **type** specifies which external system KEDA should monitor.
 
@@ -144,7 +110,7 @@ Each trigger type corresponds to a built-in KEDA Scaler.
 
 ---
 
-# Metadata
+## Metadata
 
 Metadata defines the trigger configuration.
 
@@ -167,7 +133,7 @@ Different trigger types expose different metadata fields.
 
 ---
 
-# Authentication
+## Authentication
 
 Many external systems require authentication.
 
@@ -185,7 +151,7 @@ This separation improves security and allows credentials to be reused across mul
 
 ---
 
-# Example Trigger
+## Example Trigger
 
 A simplified RabbitMQ trigger might look like this.
 
@@ -223,7 +189,7 @@ Whenever the queue exceeds fifty messages, KEDA increases the number of Pods.
 
 ---
 
-# Multiple Triggers
+## Multiple Triggers
 
 A workload may monitor several event sources simultaneously.
 
@@ -265,65 +231,21 @@ This allows a single application to respond to multiple business events.
 
 ---
 
-# Trigger Evaluation
+## Trigger Evaluation
 
-Each trigger periodically evaluates its external system.
-
-Suppose:
+Each trigger periodically evaluates its external system. The configured threshold is a **target value per replica** — the HPA uses it in the standard replica calculation:
 
 ```text
-Current Queue
-
-25 Messages
+Queue: 25 messages,  threshold 50  →  ceil(25 / 50)  = 1 replica
+Queue: 125 messages, threshold 50  →  ceil(125 / 50) = 3 replicas
+Queue: 600 messages, threshold 50  →  ceil(600 / 50) = 12 replicas
 ```
 
-Threshold:
-
-```text
-50 Messages
-```
-
-Result:
-
-```text
-25
-
-<
-
-50
-
-↓
-
-No Scaling
-```
-
-Later:
-
-```text
-Queue
-
-125 Messages
-```
-
-Result:
-
-```text
-125
-
->
-
-50
-
-↓
-
-Scale Up
-```
-
-Scaling decisions are based entirely on the configured trigger condition.
+A separate `activationThreshold` (default `0`) controls whether the workload is active at all: with zero replicas, the workload only starts once the metric exceeds it.
 
 ---
 
-# Popular Trigger Categories
+## Popular Trigger Categories
 
 KEDA supports more than sixty trigger types.
 
@@ -337,14 +259,14 @@ They can be grouped into several categories.
 | Cloud Services | Azure, AWS, Google Cloud |
 | Storage | Redis Lists, Redis Streams |
 | Schedulers | Cron |
-| Networking | HTTP |
+| Networking | HTTP (via the separate KEDA HTTP Add-on) |
 | Custom | External Push Scalers |
 
 This broad ecosystem is one of KEDA's greatest strengths.
 
 ---
 
-# Polling Behavior
+## Polling Behavior
 
 Triggers are evaluated at regular intervals.
 
@@ -372,7 +294,7 @@ Polling intervals should balance responsiveness with the overhead imposed on ext
 
 ---
 
-# Trigger Independence
+## Trigger Independence
 
 Each trigger operates independently.
 
@@ -394,13 +316,13 @@ Prometheus
 HTTP Requests
 ```
 
-Each trigger evaluates its own condition.
+Each trigger evaluates its own condition and becomes a **separate external metric** on the HPA that KEDA generates. The HPA then applies its standard multi-metric rule: the **largest** calculated replica count wins.
 
-KEDA combines these evaluations before exposing the resulting metrics to the Horizontal Pod Autoscaler.
+For scale to zero, the logic is inverted: a workload is only deactivated when **every** trigger is inactive — a single active trigger keeps it running.
 
 ---
 
-# Why Triggers Matter
+## Why Triggers Matter
 
 Traditional autoscaling answers:
 
@@ -416,7 +338,7 @@ For many asynchronous systems, the amount of pending work is a much better indic
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Choose trigger types that directly represent business demand rather than indirect infrastructure metrics.
@@ -443,7 +365,7 @@ For many asynchronous systems, the amount of pending work is a much better indic
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - Triggers define when KEDA should scale a workload.
 - Every trigger connects Kubernetes to an external event source.

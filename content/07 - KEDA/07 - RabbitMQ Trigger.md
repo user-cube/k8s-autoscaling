@@ -15,7 +15,7 @@ This makes it ideal for asynchronous applications where messages are processed i
 
 ---
 
-# Why Scale on Queue Length?
+## Why Scale on Queue Length?
 
 Consider a message processing application.
 
@@ -65,39 +65,20 @@ The RabbitMQ Trigger solves this problem by monitoring the queue directly.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-Producer
+Producer --> RabbitMQ --> KEDA --> HorizontalPodAutoscaler --> Deployment --> WorkerPods["Worker Pods"]
 
--->
-
-RabbitMQ
-
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-WorkerPods["Worker Pods"]
 ```
 
 KEDA periodically checks the queue length and exposes it as an external metric to the HPA.
 
 ---
 
-# Queue Length
+## Queue Length
 
 The RabbitMQ Trigger commonly uses **queue length** as its scaling metric.
 
@@ -109,7 +90,7 @@ Queue
 250 Messages
 ```
 
-Threshold:
+Target per Pod:
 
 ```text
 50 Messages
@@ -118,22 +99,18 @@ Threshold:
 Evaluation:
 
 ```text
-250
-
->
-
-50
+ceil(250 / 50)
 
 ↓
 
-Scale Up
+5 Workers
 ```
 
-The larger the queue, the more workers Kubernetes creates.
+The threshold is a **target per replica**, not an on/off switch — the larger the queue, the more workers Kubernetes creates.
 
 ---
 
-# Basic Configuration
+## Basic Configuration
 
 A simplified RabbitMQ trigger looks like this.
 
@@ -152,11 +129,14 @@ triggers:
 This configuration tells KEDA:
 
 - monitor the `orders` queue;
-- scale when more than **50 messages** are waiting.
+- target approximately **50 messages per Pod** — the HPA computes `ceil(queue length / 50)` replicas.
+
+> [!note]
+> `queueLength` is the legacy parameter name. Recent KEDA versions prefer the equivalent `mode: QueueLength` + `value: "50"` pair (which also enables `mode: MessageRate`). The connection details (`host`) are normally supplied through a TriggerAuthentication resource rather than inline.
 
 ---
 
-# Scaling Example
+## Scaling Example
 
 Suppose the Deployment currently has:
 
@@ -200,7 +180,7 @@ Multiple Pods consume messages simultaneously, reducing the queue much faster.
 
 ---
 
-# Scaling Down
+## Scaling Down
 
 As workers process messages:
 
@@ -250,7 +230,7 @@ No compute resources remain allocated while the application is idle.
 
 ---
 
-# Typical Use Cases
+## Typical Use Cases
 
 The RabbitMQ Trigger is commonly used for:
 
@@ -267,7 +247,7 @@ Any workload that consumes RabbitMQ messages can benefit from automatic scaling.
 
 ---
 
-# Why Queue Length Works Better Than CPU
+## Why Queue Length Works Better Than CPU
 
 Imagine two worker Pods.
 
@@ -293,7 +273,7 @@ This allows Kubernetes to react much earlier than CPU-based autoscaling.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Choose queue length thresholds based on acceptable processing latency rather than arbitrary values.
@@ -320,7 +300,7 @@ This allows Kubernetes to react much earlier than CPU-based autoscaling.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - The RabbitMQ Trigger scales workloads according to queue length.
 - Queue length is often a better indicator of workload than CPU utilization.

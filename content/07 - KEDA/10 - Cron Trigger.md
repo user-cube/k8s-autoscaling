@@ -15,7 +15,7 @@ The Cron Trigger is particularly useful for workloads whose demand follows predi
 
 ---
 
-# Why Use a Cron Trigger?
+## Why Use a Cron Trigger?
 
 Some applications experience highly predictable traffic.
 
@@ -32,28 +32,13 @@ Instead, Kubernetes can prepare capacity **before** demand arrives.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-Schedule["Cron Schedule"]
+Schedule["Cron Schedule"] --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
 
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-Pods
 ```
 
 Unlike other KEDA triggers, no external messaging system or monitoring platform is required.
@@ -62,7 +47,7 @@ The schedule itself becomes the event source.
 
 ---
 
-# How It Works
+## How It Works
 
 The Cron Trigger continuously evaluates the current time.
 
@@ -94,7 +79,7 @@ Scaling decisions are therefore completely deterministic.
 
 ---
 
-# Basic Configuration
+## Basic Configuration
 
 A simplified Cron Trigger might look like this.
 
@@ -123,7 +108,7 @@ This configuration means:
 
 ---
 
-# Example
+## Example
 
 Suppose an internal business application is used only during office hours.
 
@@ -169,7 +154,7 @@ The application automatically scales according to the business schedule.
 
 ---
 
-# Daily Scaling Timeline
+## Daily Scaling Timeline
 
 ```text
 Time
@@ -201,7 +186,7 @@ No application traffic is required to trigger scaling.
 
 ---
 
-# Typical Use Cases
+## Typical Use Cases
 
 The Cron Trigger is commonly used for:
 
@@ -218,7 +203,7 @@ Any workload with predictable operating hours is a good candidate.
 
 ---
 
-# Cron vs Event-Based Scaling
+## Cron vs Event-Based Scaling
 
 The Cron Trigger differs fundamentally from other KEDA triggers.
 
@@ -234,7 +219,7 @@ The Cron Trigger is proactive rather than reactive.
 
 ---
 
-# Combining Cron with Other Triggers
+## Combining Cron with Other Triggers
 
 A ScaledObject may contain multiple triggers.
 
@@ -274,7 +259,7 @@ This combination provides both predictability and elasticity.
 
 ---
 
-# Time Zones
+## Time Zones
 
 Cron schedules always use a configured timezone.
 
@@ -294,33 +279,33 @@ Choosing the correct timezone is particularly important for globally distributed
 
 ---
 
-# Advantages
+## Advantages
 
-## Predictable Scaling
+### Predictable Scaling
 
 Applications scale before users arrive.
 
 ---
 
-## No Monitoring Required
+### No Monitoring Required
 
 The schedule itself determines scaling.
 
 ---
 
-## Cost Optimization
+### Cost Optimization
 
 Applications can automatically scale to zero outside business hours.
 
 ---
 
-## Operational Simplicity
+### Operational Simplicity
 
 Cron expressions are well understood and widely used across many systems.
 
 ---
 
-# Limitations
+## Limitations
 
 The Cron Trigger assumes that workload patterns are predictable.
 
@@ -342,7 +327,7 @@ For unpredictable workloads, event-based triggers such as RabbitMQ, Kafka, or Pr
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Use the Cron Trigger for workloads with predictable usage patterns, such as office-hour applications or scheduled maintenance tasks.
@@ -369,7 +354,7 @@ For unpredictable workloads, event-based triggers such as RabbitMQ, Kafka, or Pr
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - The Cron Trigger scales workloads according to a predefined schedule.
 - It is ideal for applications with predictable usage patterns.

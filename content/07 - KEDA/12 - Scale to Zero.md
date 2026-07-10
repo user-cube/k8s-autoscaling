@@ -15,7 +15,7 @@ This behavior significantly reduces infrastructure costs for event-driven applic
 
 ---
 
-# Why Scale to Zero?
+## Why Scale to Zero?
 
 Many workloads spend most of their time idle.
 
@@ -55,39 +55,20 @@ KEDA eliminates this unnecessary resource consumption.
 
 ---
 
-# High-Level Workflow
+## High-Level Workflow
 
 ```mermaid
 flowchart LR
 
-Queue["Queue Empty"]
+Queue["Queue Empty"] --> KEDA --> ScaleDown["0 Pods"] --> Message["New Message"] --> KEDA --> ScaleUp["Create Pods"]
 
--->
-
-KEDA
-
--->
-
-ScaleDown["0 Pods"]
-
--->
-
-Message["New Message"]
-
--->
-
-KEDA
-
--->
-
-ScaleUp["Create Pods"]
 ```
 
 Pods exist only while there is actual work to perform.
 
 ---
 
-# Example
+## Example
 
 Suppose a message processing application starts with:
 
@@ -155,34 +136,42 @@ The application consumes no compute resources while idle.
 
 ---
 
-# Complete Lifecycle
+## Who Performs the Scale to Zero?
+
+An important architectural detail: the Horizontal Pod Autoscaler **cannot** scale to or from zero replicas. The work is therefore split between two components:
+
+| Replica Range | Responsible Component |
+|---|---|
+| 0 ↔ 1 (activation / deactivation) | **KEDA Operator** — modifies the Deployment directly |
+| 1 ↔ N (regular scaling) | **Horizontal Pod Autoscaler** |
+
+The 0 → 1 transition is controlled by the trigger's `activationThreshold` (default `0` — any metric value above zero activates the workload). Once at least one replica exists, the HPA takes over using the regular threshold.
+
+---
+
+## Complete Lifecycle
 
 ```mermaid
 sequenceDiagram
 
 participant Queue
-participant KEDA
+participant KEDA as KEDA Operator
 participant HPA
 participant Deployment
 
 Queue->>KEDA: Queue Empty
-
-KEDA->>HPA: Desired Replicas = 0
-
-HPA->>Deployment: Scale to 0
-
+KEDA->>Deployment: Scale 1 → 0 (deactivation)
 Queue->>KEDA: New Messages
-
-KEDA->>HPA: Desired Replicas = 5
-
-HPA->>Deployment: Create Pods
+KEDA->>Deployment: Scale 0 → 1 (activation)
+KEDA->>HPA: External metric available
+HPA->>Deployment: Scale 1 → 5
 ```
 
 The entire lifecycle is automatic.
 
 ---
 
-# Traditional HPA vs KEDA
+## Traditional HPA vs KEDA
 
 | Horizontal Pod Autoscaler | KEDA |
 |---------------------------|------|
@@ -195,7 +184,7 @@ Scale to Zero is one of the primary reasons organizations adopt KEDA.
 
 ---
 
-# Cost Optimization
+## Cost Optimization
 
 Imagine a background worker that is active for only two hours each day.
 
@@ -231,7 +220,7 @@ Infrastructure costs are reduced dramatically, especially in cloud environments 
 
 ---
 
-# Startup Latency
+## Startup Latency
 
 Scale to Zero introduces an important trade-off.
 
@@ -265,7 +254,7 @@ This delay is usually acceptable for asynchronous workloads but may not be suita
 
 ---
 
-# Ideal Workloads
+## Ideal Workloads
 
 Scale to Zero works particularly well for:
 
@@ -282,7 +271,7 @@ These applications naturally tolerate short startup delays.
 
 ---
 
-# Workloads That May Not Benefit
+## Workloads That May Not Benefit
 
 Some applications require immediate responsiveness.
 
@@ -299,7 +288,7 @@ For such workloads, a minimum replica count greater than zero is usually more ap
 
 ---
 
-# Interaction with the Cluster Autoscaler
+## Interaction with the Cluster Autoscaler
 
 Scale to Zero can also reduce infrastructure costs.
 
@@ -332,7 +321,7 @@ This creates a fully elastic Kubernetes platform.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Use Scale to Zero for event-driven workloads that spend long periods idle.
@@ -359,9 +348,10 @@ This creates a fully elastic Kubernetes platform.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - Scale to Zero allows KEDA-managed workloads to run with zero replicas when idle.
+- The KEDA Operator performs the 0 ↔ 1 transitions directly — the HPA only scales between 1 and `maxReplicaCount`.
 - New Pods are automatically created when external events occur.
 - This capability significantly reduces infrastructure costs.
 - Scale to Zero is best suited for asynchronous and event-driven applications.

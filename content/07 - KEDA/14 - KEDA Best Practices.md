@@ -15,7 +15,7 @@ This chapter summarizes the most important recommendations for running KEDA in p
 
 ---
 
-# Choose the Right Trigger
+## Choose the Right Trigger
 
 The trigger should represent **business demand**, not infrastructure utilization.
 
@@ -34,7 +34,7 @@ For example, CPU utilization is usually better handled by the Horizontal Pod Aut
 
 ---
 
-# Scale According to Workload
+## Scale According to Workload
 
 Different applications require different scaling strategies.
 
@@ -50,7 +50,7 @@ Choosing the correct trigger is often more important than tuning the scaling thr
 
 ---
 
-# Configure Sensible Thresholds
+## Configure Sensible Thresholds
 
 Thresholds determine when scaling begins.
 
@@ -73,7 +73,7 @@ Production thresholds should be based on observed workload behavior rather than 
 
 ---
 
-# Tune Polling Intervals
+## Tune Polling Intervals
 
 KEDA periodically polls external systems.
 
@@ -97,9 +97,9 @@ Most production workloads perform well with polling intervals between **15 and 6
 
 ---
 
-# Configure Cooldown Periods
+## Configure Cooldown Periods
 
-Scaling down immediately after activity decreases may create unnecessary oscillation.
+Deactivating a workload immediately after the last event may create unnecessary oscillation between 0 and 1 replicas.
 
 Example:
 
@@ -107,13 +107,15 @@ Example:
 cooldownPeriod: 300
 ```
 
-A cooldown period allows temporary workload fluctuations to settle before replicas are removed.
+The cooldown period delays only the **final scale-to-zero step** — temporary inactivity does not immediately deactivate the workload.
 
-This improves workload stability while reducing infrastructure churn.
+For scale-down between N and 1 replicas, tune the generated HPA instead, through `advanced.horizontalPodAutoscalerConfig` (stabilization window and scaling policies).
+
+Also consider configuring `fallback` so that workloads keep a known-safe replica count when the external system cannot be reached.
 
 ---
 
-# Use Scale to Zero Appropriately
+## Use Scale to Zero Appropriately
 
 Scale to Zero is one of KEDA's greatest strengths.
 
@@ -130,7 +132,7 @@ Always consider startup latency when designing event-driven services.
 
 ---
 
-# Secure Authentication
+## Secure Authentication
 
 Never place credentials directly inside a ScaledObject.
 
@@ -158,7 +160,7 @@ Authentication should remain independent from scaling configuration.
 
 ---
 
-# Monitor the Right Metrics
+## Monitor the Right Metrics
 
 Successful KEDA deployments require visibility into both application behavior and scaling decisions.
 
@@ -176,7 +178,7 @@ Monitoring these metrics makes it easier to tune scaling thresholds over time.
 
 ---
 
-# Test Autoscaling Regularly
+## Test Autoscaling Regularly
 
 Do not assume scaling works correctly.
 
@@ -196,7 +198,7 @@ Regular testing builds confidence in production deployments.
 
 ---
 
-# Combine with the Cluster Autoscaler
+## Combine with the Cluster Autoscaler
 
 KEDA manages application replicas.
 
@@ -207,31 +209,8 @@ Together they provide complete elasticity.
 ```mermaid
 flowchart TD
 
-ExternalEvent
+ExternalEvent --> KEDA --> HPA --> Deployment --> Scheduler --> ClusterAutoscaler --> WorkerNodes["Worker Nodes"]
 
--->
-
-KEDA
-
--->
-
-HPA
-
--->
-
-Deployment
-
--->
-
-Scheduler
-
--->
-
-ClusterAutoscaler
-
--->
-
-WorkerNodes["Worker Nodes"]
 ```
 
 Applications scale according to workload.
@@ -240,7 +219,7 @@ Infrastructure scales according to application demand.
 
 ---
 
-# Keep Applications Stateless
+## Keep Applications Stateless
 
 Event-driven workloads benefit greatly from stateless design.
 
@@ -255,7 +234,7 @@ Long-lived application state should be stored externally in databases or object 
 
 ---
 
-# Avoid Over-Scaling
+## Avoid Over-Scaling
 
 Scaling is not free.
 
@@ -272,7 +251,7 @@ Scaling should always match the application's actual processing capacity.
 
 ---
 
-# Production Checklist
+## Production Checklist
 
 Before deploying KEDA, verify:
 
@@ -289,7 +268,7 @@ Before deploying KEDA, verify:
 
 ---
 
-# Best Practices Summary
+## Best Practices Summary
 
 | Recommendation | Benefit |
 |----------------|---------|
@@ -304,7 +283,7 @@ Before deploying KEDA, verify:
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - Effective autoscaling begins with selecting triggers that accurately represent business demand.
 - Polling intervals, cooldown periods, and thresholds should be tuned using real production data.

@@ -21,7 +21,7 @@ To solve this problem, KEDA provides dedicated authentication resources.
 
 ---
 
-# Why Separate Authentication?
+## Why Separate Authentication?
 
 Imagine several applications consuming messages from the same RabbitMQ server.
 
@@ -65,31 +65,20 @@ Instead, KEDA separates authentication from scaling configuration.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-TriggerAuthentication
+TriggerAuthentication --> ScaledObject --> KEDA --> ExternalSystem["External System"]
 
--->
-
-ScaledObject
-
--->
-
-KEDA
-
--->
-
-ExternalSystem["External System"]
 ```
 
 The ScaledObject references an authentication resource rather than storing credentials directly.
 
 ---
 
-# TriggerAuthentication
+## TriggerAuthentication
 
 The most common authentication resource is **TriggerAuthentication**.
 
@@ -117,7 +106,7 @@ Only ScaledObjects in the same namespace can reference it.
 
 ---
 
-# Basic Structure
+## Basic Structure
 
 A simplified TriggerAuthentication resource looks like this.
 
@@ -137,7 +126,7 @@ The specification defines where KEDA should obtain the required credentials.
 
 ---
 
-# Using Kubernetes Secrets
+## Using Kubernetes Secrets
 
 The most common approach is to store credentials in a Kubernetes Secret.
 
@@ -177,7 +166,7 @@ The Secret remains the single source of truth.
 
 ---
 
-# Referencing Authentication
+## Referencing Authentication
 
 A ScaledObject references the authentication resource.
 
@@ -211,7 +200,7 @@ The ScaledObject itself contains no credentials.
 
 ---
 
-# ClusterTriggerAuthentication
+## ClusterTriggerAuthentication
 
 Sometimes multiple namespaces require the same credentials.
 
@@ -239,7 +228,7 @@ This resource is available across the entire Kubernetes cluster.
 
 ---
 
-# TriggerAuthentication vs ClusterTriggerAuthentication
+## TriggerAuthentication vs ClusterTriggerAuthentication
 
 | TriggerAuthentication | ClusterTriggerAuthentication |
 |------------------------|------------------------------|
@@ -254,7 +243,7 @@ ClusterTriggerAuthentication is typically reserved for shared platform services.
 
 ---
 
-# Supported Authentication Sources
+## Supported Authentication Sources
 
 KEDA supports several authentication methods.
 
@@ -271,7 +260,7 @@ This flexibility allows KEDA to integrate naturally with enterprise security pra
 
 ---
 
-# Example Workflow
+## Example Workflow
 
 Suppose an application consumes messages from RabbitMQ.
 
@@ -299,11 +288,11 @@ Credentials never appear inside the ScaledObject.
 
 ---
 
-# Why This Design?
+## Why This Design?
 
 Separating authentication provides several advantages.
 
-## Better Security
+### Better Security
 
 Secrets remain centralized.
 
@@ -311,7 +300,7 @@ Applications do not duplicate credentials.
 
 ---
 
-## Easier Rotation
+### Easier Rotation
 
 Changing a password requires updating only the Secret.
 
@@ -319,13 +308,13 @@ Every ScaledObject automatically uses the updated credentials.
 
 ---
 
-## Improved Reusability
+### Improved Reusability
 
 Multiple applications can share the same authentication resource.
 
 ---
 
-## Better Separation of Responsibilities
+### Better Separation of Responsibilities
 
 Scaling configuration and authentication are managed independently.
 
@@ -333,7 +322,7 @@ This aligns with Kubernetes' declarative design philosophy.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Store credentials in Kubernetes Secrets rather than embedding them directly inside ScaledObjects.
@@ -360,7 +349,7 @@ This aligns with Kubernetes' declarative design philosophy.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - TriggerAuthentication securely stores connection information for external systems.
 - ScaledObjects reference authentication resources instead of embedding credentials.

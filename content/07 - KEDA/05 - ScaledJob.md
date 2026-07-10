@@ -26,7 +26,7 @@ Examples include:
 
 ---
 
-# Why Does KEDA Need ScaledJobs?
+## Why Does KEDA Need ScaledJobs?
 
 Consider a Deployment.
 
@@ -66,7 +66,7 @@ This is precisely the problem solved by ScaledJobs.
 
 ---
 
-# Deployment vs Job
+## Deployment vs Job
 
 A Deployment is intended for continuously running applications.
 
@@ -104,39 +104,20 @@ ScaledJobs automate the creation of Jobs whenever external work becomes availabl
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-ExternalEvent["External Event"]
+ExternalEvent["External Event"] --> KEDA --> ScaledJob --> Job --> Pod --> Completed
 
--->
-
-KEDA
-
--->
-
-ScaledJob
-
--->
-
-Job
-
--->
-
-Pod
-
--->
-
-Completed
 ```
 
 Unlike a ScaledObject, which adjusts the number of replicas, a ScaledJob creates entirely new Kubernetes Jobs.
 
 ---
 
-# Basic Structure
+## Basic Structure
 
 A ScaledJob is another Kubernetes Custom Resource.
 
@@ -156,7 +137,7 @@ Its structure resembles a ScaledObject but targets Jobs instead of Deployments.
 
 ---
 
-# jobTargetRef
+## jobTargetRef
 
 The **jobTargetRef** defines the Job template that KEDA will create.
 
@@ -192,7 +173,7 @@ Every scaling event creates one or more Jobs using this template.
 
 ---
 
-# Polling External Events
+## Polling External Events
 
 Like ScaledObjects, ScaledJobs periodically monitor external systems.
 
@@ -218,7 +199,7 @@ Create Jobs
 
 ---
 
-# Example
+## Example
 
 Imagine a RabbitMQ queue.
 
@@ -256,7 +237,7 @@ No long-running Pods remain.
 
 ---
 
-# Complete Workflow
+## Complete Workflow
 
 ```mermaid
 sequenceDiagram
@@ -281,7 +262,7 @@ Each event creates new Jobs instead of increasing Deployment replicas.
 
 ---
 
-# Parallel Processing
+## Parallel Processing
 
 Suppose a queue contains:
 
@@ -313,7 +294,7 @@ This allows background work to be completed much faster.
 
 ---
 
-# Automatic Cleanup
+## Automatic Cleanup
 
 Once a Job finishes:
 
@@ -326,16 +307,19 @@ Completed
 
 ↓
 
-Removed
+Removed (per history limits)
 ```
 
-No idle Pods remain in the cluster.
+Completed Jobs are not deleted immediately — KEDA retains them according to `successfulJobsHistoryLimit` and `failedJobsHistoryLimit` (both default to 100), which is useful for inspecting logs and failures. Completed Pods consume no CPU or memory.
 
 This differs significantly from Deployments, where Pods continue running until scaled down.
 
+> [!note]
+> Unlike a ScaledObject, a ScaledJob does **not** create a Horizontal Pod Autoscaler — the KEDA Operator creates the Kubernetes Jobs directly.
+
 ---
 
-# Typical Use Cases
+## Typical Use Cases
 
 ScaledJobs are particularly useful for:
 
@@ -353,7 +337,7 @@ These workloads naturally execute as independent units of work.
 
 ---
 
-# ScaledObject vs ScaledJob
+## ScaledObject vs ScaledJob
 
 Although both are KEDA resources, they solve different problems.
 
@@ -369,9 +353,9 @@ Choosing the correct resource depends on the workload lifecycle.
 
 ---
 
-# Advantages
+## Advantages
 
-## Native Batch Processing
+### Native Batch Processing
 
 Jobs are first-class Kubernetes resources.
 
@@ -379,7 +363,7 @@ KEDA simply automates their creation.
 
 ---
 
-## Automatic Cleanup
+### Automatic Cleanup
 
 Completed Jobs terminate naturally.
 
@@ -387,13 +371,13 @@ No idle workers consume cluster resources.
 
 ---
 
-## Massive Parallelism
+### Massive Parallelism
 
 Large workloads can be processed using hundreds of independent Jobs.
 
 ---
 
-## Cost Optimization
+### Cost Optimization
 
 Infrastructure is used only while work exists.
 
@@ -401,7 +385,7 @@ Idle compute resources can be reclaimed immediately after processing completes.
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Use ScaledJobs for finite tasks that naturally complete, such as file processing, ETL pipelines, or batch imports.
@@ -428,7 +412,7 @@ Idle compute resources can be reclaimed immediately after processing completes.
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - ScaledJobs are designed for event-driven batch processing.
 - Each scaling event creates one or more Kubernetes Jobs.

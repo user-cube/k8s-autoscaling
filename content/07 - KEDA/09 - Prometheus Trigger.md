@@ -15,7 +15,7 @@ If a metric exists in Prometheus, KEDA can potentially use it for autoscaling.
 
 ---
 
-# Why Use Prometheus?
+## Why Use Prometheus?
 
 Some applications cannot be scaled using:
 
@@ -41,32 +41,13 @@ KEDA simply transforms them into autoscaling signals.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
 
-Application
+Application --> Prometheus --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
 
--->
-
-Prometheus
-
--->
-
-KEDA
-
--->
-
-HorizontalPodAutoscaler
-
--->
-
-Deployment
-
--->
-
-Pods
 ```
 
 Prometheus stores the metrics.
@@ -75,41 +56,22 @@ KEDA periodically executes a PromQL query and exposes the result to the Horizont
 
 ---
 
-# How It Works
+## How It Works
 
 The workflow is straightforward.
 
 ```mermaid
 flowchart LR
 
-Metric["Application Metric"]
+Metric["Application Metric"] --> Prometheus --> PromQL["PromQL Query"] --> KEDA --> HPA --> Pods
 
--->
-
-Prometheus
-
--->
-
-PromQL["PromQL Query"]
-
--->
-
-KEDA
-
--->
-
-HPA
-
--->
-
-Pods
 ```
 
 Instead of monitoring a queue or database, KEDA evaluates the result of a Prometheus query.
 
 ---
 
-# Example Metric
+## Example Metric
 
 Suppose an application exports:
 
@@ -133,7 +95,7 @@ Current result:
 250 Requests/sec
 ```
 
-Threshold:
+Target per replica:
 
 ```text
 100 Requests/sec
@@ -142,20 +104,18 @@ Threshold:
 Result:
 
 ```text
-250
-
->
-
-100
+ceil(250 / 100)
 
 ↓
 
-Scale Up
+3 Replicas
 ```
+
+The threshold is a **target per replica** — the HPA computes `ceil(query result / threshold)`.
 
 ---
 
-# Basic Configuration
+## Basic Configuration
 
 A simplified Prometheus trigger might look like this.
 
@@ -168,14 +128,15 @@ triggers:
 
     serverAddress: http://prometheus:9090
 
-    metricName: http_requests
-
     query: |
 
       rate(http_requests_total[1m])
 
     threshold: "100"
 ```
+
+> [!note]
+> Older examples include a `metricName` field — it is deprecated and ignored since KEDA 2.10. Metric names are now generated automatically (e.g. `s0-prometheus`).
 
 This configuration tells KEDA:
 
@@ -186,7 +147,7 @@ This configuration tells KEDA:
 
 ---
 
-# Scaling Example
+## Scaling Example
 
 Current application:
 
@@ -204,7 +165,7 @@ Requests/sec
 600
 ```
 
-Threshold:
+Target per replica:
 
 ```text
 100 Requests/sec
@@ -217,14 +178,14 @@ The HPA calculates:
 ```text
 Desired Replicas
 
-12
+ceil(600 / 100) = 6
 ```
 
 The Deployment creates additional Pods.
 
 ---
 
-# Scaling Down
+## Scaling Down
 
 Traffic decreases.
 
@@ -254,7 +215,7 @@ If configured appropriately, the application may eventually scale back to its mi
 
 ---
 
-# Typical Use Cases
+## Typical Use Cases
 
 The Prometheus Trigger is suitable for workloads that expose meaningful business metrics.
 
@@ -273,7 +234,7 @@ Almost any measurable business indicator can become a scaling metric.
 
 ---
 
-# Why Prometheus Is So Powerful
+## Why Prometheus Is So Powerful
 
 Unlike most triggers, Prometheus does not define the metric.
 
@@ -311,7 +272,7 @@ The flexibility is almost unlimited.
 
 ---
 
-# Prometheus vs Resource Metrics
+## Prometheus vs Resource Metrics
 
 The Horizontal Pod Autoscaler already supports CPU utilization.
 
@@ -328,7 +289,7 @@ Prometheus enables autoscaling based on metrics that truly represent application
 
 ---
 
-# Best Practices
+## Best Practices
 
 > [!tip]
 > Choose Prometheus metrics that directly reflect workload demand rather than low-level infrastructure statistics.
@@ -355,7 +316,7 @@ Prometheus enables autoscaling based on metrics that truly represent application
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - The Prometheus Trigger scales workloads using Prometheus metrics and PromQL queries.
 - It enables autoscaling based on business-specific metrics rather than infrastructure utilization.
