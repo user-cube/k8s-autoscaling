@@ -29,7 +29,7 @@ Unlike the HPA or VPA, the Cluster Autoscaler never modifies applications. It ch
 
 ## How the Cluster Autoscaler Works
 
-The Cluster Autoscaler continuously monitors the Scheduler. Whenever Pods cannot be scheduled due to insufficient resources, it evaluates whether adding new Worker Nodes would solve the problem:
+The Cluster Autoscaler watches the Kubernetes API for Pods marked unschedulable by the Scheduler (condition `PodScheduled=False`, reason `Unschedulable`), re-evaluating every **10 seconds** by default (`--scan-interval`). Whenever Pods cannot be scheduled due to insufficient resources, it evaluates whether adding new Worker Nodes would solve the problem:
 
 ```mermaid
 flowchart LR

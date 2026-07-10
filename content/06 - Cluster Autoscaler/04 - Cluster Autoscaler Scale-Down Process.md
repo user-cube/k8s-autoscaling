@@ -36,7 +36,12 @@ Unlike Scale-Up, Scale-Down focuses on **moving workloads** rather than creating
 
 ## Step 1 — Identify Underutilized Nodes
 
-The Cluster Autoscaler continuously evaluates Worker Nodes. Low utilization alone is **not** enough — the Cluster Autoscaler must also determine whether the workloads can be relocated.
+The Cluster Autoscaler continuously evaluates Worker Nodes. A node becomes a candidate when its utilization falls below a threshold — **50% by default** (`--scale-down-utilization-threshold=0.5`).
+
+> [!important]
+> "Utilization" here is calculated from **resource requests**, not actual usage: `sum of Pod requests / node allocatable`. The Cluster Autoscaler never consults the Metrics Server. A node whose Pods request 80% of its CPU but only *use* 5% will **never** be scaled down — this is one of the most common misconceptions about the CA, and another reason to keep resource requests accurate.
+
+Low utilization alone is **not** enough — the node must stay below the threshold for a sustained period (**10 minutes** by default, `--scale-down-unneeded-time`), and the Cluster Autoscaler must also determine whether the workloads can be relocated.
 
 ---
 
@@ -54,7 +59,10 @@ If every Pod can be relocated, the node becomes a Scale-Down candidate. If even 
 
 ## Step 3 — Cordon the Node
 
-Once a node is selected, Kubernetes marks it as **unschedulable** (cordoned). No new Pods are placed on the node while Scale-Down is in progress. Existing Pods continue running.
+Once a node is selected, Kubernetes marks it as **unschedulable**. No new Pods are placed on the node while Scale-Down is in progress. Existing Pods continue running.
+
+> [!note]
+> Technically, the Cluster Autoscaler applies the `ToBeDeletedByClusterAutoscaler` taint (`NoSchedule`) rather than a classic `kubectl cordon` — the effect is the same: the Scheduler stops placing Pods there.
 
 ---
 
@@ -84,10 +92,15 @@ Not every Worker Node is eligible for Scale-Down:
 
 - Nodes hosting Pods that cannot be relocated
 - Nodes protected by Pod Disruption Budgets
-- Nodes running system-critical workloads
-- Nodes with local storage that would be lost if the node is deleted
+- Nodes running `kube-system` Pods that are not DaemonSets and have no PDB
+- Nodes with Pods using local storage that would be lost if the node is deleted
+- Nodes with **naked Pods** — Pods not backed by a controller (Deployment, ReplicaSet, Job, StatefulSet), since nothing would recreate them elsewhere
+- Nodes with Pods annotated `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`
 
 Kubernetes keeps these nodes even if utilization is low.
+
+> [!tip]
+> The inverse annotation also exists: `cluster-autoscaler.kubernetes.io/safe-to-evict: "true"` tells the Cluster Autoscaler that a Pod with local storage (or other blocking characteristics) may be evicted safely, unblocking Scale-Down.
 
 ---
 
@@ -113,7 +126,13 @@ The HPA reduces application demand; the Cluster Autoscaler removes the infrastru
 
 ## Why Doesn't Scale-Down Happen Immediately?
 
-Immediately deleting nodes after every traffic drop would create unnecessary infrastructure churn. The Cluster Autoscaler waits for a stabilization period to ensure that reduced demand is sustained rather than temporary.
+Immediately deleting nodes after every traffic drop would create unnecessary infrastructure churn. The Cluster Autoscaler applies several stabilization rules (all configurable):
+
+- A node must remain underutilized for **10 minutes** before removal (`--scale-down-unneeded-time=10m`)
+- After any scale-up, Scale-Down evaluation pauses for **10 minutes** (`--scale-down-delay-after-add=10m`)
+- Non-empty nodes are drained **one at a time**; only completely empty nodes may be removed in bulk
+
+These defaults ensure that reduced demand is sustained rather than temporary.
 
 ---
 
@@ -151,7 +170,7 @@ In these situations, maintaining application availability is more important than
 ## Key Takeaways
 
 - Scale-Down removes unnecessary Worker Nodes after demand decreases
-- Nodes are evaluated for utilization and workload mobility before removal
+- Nodes are evaluated for utilization and workload mobility before removal — utilization is calculated from Pod **requests**, never from actual usage
 - Kubernetes cordons and drains nodes gracefully before deleting them
 - Pod Disruption Budgets and scheduling constraints influence whether a node can be removed
 - Scale-Down complements the HPA by removing infrastructure after application replicas are reduced

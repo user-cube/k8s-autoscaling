@@ -52,6 +52,11 @@ Always balance cost savings against infrastructure startup time.
 
 Production Node Groups should span multiple Availability Zones whenever possible. This improves resilience and reduces the impact of infrastructure failures in a single zone.
 
+Two common patterns:
+
+- **One node group per AZ** — required for workloads with zonal volumes (e.g. EBS), since a Pod's volume pins it to a specific zone. Combine with the `--balance-similar-node-groups` flag so the Cluster Autoscaler keeps the per-zone groups at similar sizes.
+- **One multi-AZ node group** — simpler, appropriate for stateless workloads without zonal constraints.
+
 ---
 
 ## Keep Node Groups Homogeneous

@@ -95,6 +95,12 @@ The Cluster Autoscaler automates infrastructure management but does not eliminat
 
 ---
 
+## Alternative: Karpenter
+
+Several of these limitations stem from the node-group model itself — fixed instance types, pre-defined groups, and group-level scaling. **Karpenter** (originally AWS, now a CNCF project) takes a different approach: it provisions individual nodes directly, choosing the instance type per Pending Pod from a flexible set of requirements, without static node groups. It typically provisions faster and packs more efficiently, at the cost of a different operational model. For AWS-based clusters, Karpenter is increasingly the default choice over the Cluster Autoscaler.
+
+---
+
 ## Summary
 
 The Cluster Autoscaler works well when:

@@ -68,6 +68,11 @@ nodeSelector:
 
 The Cluster Autoscaler compares these constraints against available Node Groups and selects the matching one — even before any node in that group exists.
 
+To do this, it builds a **node template**: a prediction of what a node from that group will look like (CPU, memory, labels, taints), derived from the cloud provider configuration — the launch template of an ASG, the VMSS profile, and so on.
+
+> [!warning]
+> This is the classic Scale From Zero gotcha: with zero running nodes, the Cluster Autoscaler cannot inspect a real node, so custom labels, taints, and extended resources (like GPUs) must be declared in the node group configuration itself. On AWS, for example, this is done with ASG tags such as `k8s.io/cluster-autoscaler/node-template/label/...` and `.../taint/...`. If they are missing, the CA assumes the new node will not match the Pod's constraints and **silently refuses to scale up the group**.
+
 ---
 
 ## Example

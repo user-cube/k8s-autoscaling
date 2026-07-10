@@ -39,11 +39,12 @@ The Expander is responsible only for selecting the Node Group. Infrastructure pr
 |---|---|
 | Random | Random compatible Node Group |
 | Least Waste | Minimize unused resources |
-| Most Pods | Fit the largest number of Pods |
+| Most Pods | Schedule the most currently Pending Pods |
 | Priority | Use administrator-defined priorities |
+| Price | Cheapest option (GKE/GCE only) |
 
 > [!note]
-> The default Cluster Autoscaler expander is `random`. For most production environments, explicitly configuring `least-waste` or `priority` is recommended.
+> The default Cluster Autoscaler expander is `random`. For most production environments, explicitly configuring `least-waste` or `priority` is recommended. Recent versions also support chaining expanders as tie-breakers, e.g. `--expander=priority,least-waste`.
 
 ---
 
@@ -68,7 +69,10 @@ The Cluster Autoscaler selects **Small** — it leaves less unused capacity, imp
 
 ## Most Pods Strategy
 
-Chooses the Node Group capable of accommodating the largest number of Pods. A large node hosting 80 Pods is preferred over a small node hosting 20. This reduces the frequency of future scale-up operations.
+Chooses the Node Group that would be able to schedule the **largest number of currently Pending Pods** in this scale-up. It is useful during bursts, when many Pods are pending at once and some node groups can absorb more of them than others (for example, because of `nodeSelector` constraints).
+
+> [!note]
+> `most-pods` does **not** prefer bigger nodes over smaller ones — the Cluster Autoscaler can add multiple smaller nodes at once. With a single Pending Pod, every compatible Node Group ties (each schedules exactly one Pod).
 
 ---
 
@@ -84,6 +88,8 @@ Priority  10  →  GPU
 
 Whenever multiple Node Groups satisfy scheduling requirements, Kubernetes chooses the highest-priority one. Particularly useful for Spot-first cost optimization.
 
+The priorities are defined in a ConfigMap named `cluster-autoscaler-priority-expander`, mapping priority values to regular expressions matched against node group names.
+
 ---
 
 ## Cost Optimization Example
@@ -98,7 +104,7 @@ An organization prefers Spot Instances whenever possible. Priority configuration
 |---|---|---|
 | Random | Simple selection | Testing only |
 | Least Waste | Maximize resource utilization | Most production clusters |
-| Most Pods | Reduce future scaling events | High-burst environments |
+| Most Pods | Absorb the most Pending Pods per scale-up | High-burst environments with many simultaneous Pending Pods |
 | Priority | Follow administrator preferences | Multi-tier or Spot/On-Demand setups |
 
 ---
@@ -110,8 +116,8 @@ Node Groups: General (8 CPU), Spot (8 CPU), GPU (16 CPU). Pending: standard Web 
 | Strategy | Selected Node Group |
 |---|---|
 | Random | Any compatible group |
-| Least Waste | General or Spot (equal waste) |
-| Most Pods | GPU (most future Pod capacity) |
+| Least Waste | General or Spot (equal waste — GPU would leave 8 CPU idle) |
+| Most Pods | Tie — every group schedules the single Pending Pod |
 | Priority | Depends on configured priorities |
 
 The same scheduling request produces different infrastructure decisions depending on the selected Expander.
@@ -142,6 +148,6 @@ The same scheduling request produces different infrastructure decisions dependin
 - Expander Strategies determine which Node Group is expanded when multiple compatible options exist
 - The default expander is `random` — explicitly configure one for production use
 - Least Waste minimizes unused CPU and memory and is recommended for most production clusters
-- Most Pods favors larger nodes that can host more workloads
+- Most Pods favors the group that schedules the most currently Pending Pods — it does not prefer bigger nodes
 - Priority allows administrators to express infrastructure preferences such as Spot-first deployments
 - Choosing the appropriate Expander Strategy improves both resource utilization and infrastructure cost efficiency

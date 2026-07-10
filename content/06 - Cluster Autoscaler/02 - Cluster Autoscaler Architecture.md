@@ -68,10 +68,10 @@ The Scheduler attempts to assign every Pod to a Worker Node. If no suitable node
 
 The Cluster Autoscaler continuously queries the Kubernetes API for:
 - Pending and unschedulable Pods
-- Node utilization and available capacity
+- Pod resource **requests** and node allocatable capacity
 - Node labels, taints, and tolerations
 
-The API Server acts as the Cluster Autoscaler's source of truth.
+The API Server acts as the Cluster Autoscaler's source of truth. Note that the CA works entirely from **requests** — it never reads actual CPU or memory usage and does not depend on the Metrics Server.
 
 ---
 
