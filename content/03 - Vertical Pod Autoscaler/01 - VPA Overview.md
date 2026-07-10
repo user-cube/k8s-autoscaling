@@ -96,7 +96,7 @@ Kubernetes treats Pods as **immutable instances**. Changing resource requests re
 - QoS classes remain consistent
 
 > [!note]
-> Kubernetes 1.27 introduced **in-place Pod resource resize** (`InPlacePodVerticalScaling`) as an alpha feature, allowing CPU and memory to be updated without restarting the Pod. This is progressing toward stability in later releases — check your cluster version before relying on it.
+> Kubernetes 1.27 introduced **in-place Pod resource resize** (`InPlacePodVerticalScaling`) as an alpha feature, allowing CPU and memory to be updated without restarting the Pod. It reached beta (enabled by default) in Kubernetes 1.33, and VPA 1.4+ can use it via the `InPlaceOrRecreate` update mode — check your cluster and VPA versions before relying on it.
 
 ---
 
@@ -146,6 +146,6 @@ Most web APIs and microservices favour HPA. Databases, ML workloads, and legacy 
 
 - VPA adjusts CPU and memory per Pod instead of changing replica count
 - It analyses historical usage rather than reacting to current utilization
-- Resource updates typically require Pod recreation (in-place resize is in progress as of Kubernetes 1.27+)
+- Resource updates typically require Pod recreation (in-place resize is beta since Kubernetes 1.33; VPA 1.4+ supports it via `InPlaceOrRecreate`)
 - Ideal for workloads that cannot scale horizontally
 - Complements HPA — they solve different problems

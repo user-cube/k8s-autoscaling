@@ -41,6 +41,7 @@ The HPA does **not** create Pods directly. Instead, it modifies the desired repl
 - Deployment
 - StatefulSet
 - ReplicaSet
+- Any resource implementing the `scale` subresource — including custom resources (this is how KEDA and many operators integrate with the HPA)
 
 Internally, HPA updates the workload's `spec.replicas` field, and the workload controller creates or removes Pods to reach the desired state.
 

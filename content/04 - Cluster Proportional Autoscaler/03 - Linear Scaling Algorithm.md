@@ -60,6 +60,12 @@ ceil(64 / 16) = 4 Replicas
 
 This approach is useful when node sizes differ significantly between clusters.
 
+When both `nodesPerReplica` and `coresPerReplica` are configured, the CPA calculates each independently and applies the **larger** result:
+
+```
+replicas = max( ceil(cores / coresPerReplica), ceil(nodes / nodesPerReplica) )
+```
+
 ---
 
 ## Why CPU-Based Scaling?
@@ -160,6 +166,8 @@ linear:
   min: 2
   max: 10
 ```
+
+An alternative to `min: 2` is `preventSinglePointFailure: true`, which forces at least 2 replicas whenever the cluster has more than one node — small single-node clusters can still run a single replica.
 
 ---
 

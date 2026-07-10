@@ -1,3 +1,8 @@
+---
+title: 01 - Introduction
+description: Why Kubernetes autoscaling matters and an overview of the scaling mechanisms available.
+---
+
 # 01 - Introduction to Kubernetes Autoscaling
 
 Modern applications rarely experience constant traffic. Workloads fluctuate throughout the day due to user activity, scheduled jobs, seasonal events, and unexpected traffic spikes.

@@ -117,8 +117,8 @@ participant Deployment
 
 Pod->>Recommender: CPU & Memory Usage
 Recommender->>Updater: Resource Recommendation
-Updater->>Deployment: Replace Pod
-Deployment->>Admission: Create New Pod
+Updater->>Pod: Evict Pod (Eviction API)
+Deployment->>Admission: Create Replacement Pod
 Admission->>Deployment: Inject Updated Resources
 ```
 

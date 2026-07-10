@@ -28,7 +28,7 @@ Running Pod → Eviction → Replacement Pod → Updated Resources
 For applications that cannot tolerate restarts, this may be unacceptable.
 
 > [!note]
-> In-place Pod resource updates (`InPlacePodVerticalScaling`) entered beta in Kubernetes 1.31. This feature may reduce or eliminate the need for Pod recreation in future VPA versions.
+> In-place Pod resource updates (`InPlacePodVerticalScaling`) entered alpha in Kubernetes 1.27 and beta (enabled by default) in Kubernetes 1.33. VPA 1.4+ exposes this through the `InPlaceOrRecreate` update mode, reducing the need for Pod recreation.
 
 ---
 

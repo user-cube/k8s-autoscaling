@@ -19,16 +19,19 @@ Not every infrastructure service grows in a perfectly linear fashion. A monitori
 
 ## The Basic Concept
 
-Instead of a formula, Ladder scaling uses a lookup table:
+Instead of a formula, Ladder scaling uses a lookup table. Each entry is a threshold: the CPA applies the replica count of the **largest threshold the cluster has reached**:
 
 | Cluster Size | Desired Replicas |
 |---|---:|
 | 1–10 Nodes | 2 |
 | 11–25 Nodes | 3 |
 | 26–50 Nodes | 5 |
-| 51–100 Nodes | 8 |
+| 51+ Nodes | 8 |
 
 Whenever the cluster crosses one of these thresholds, the CPA updates the Deployment.
+
+> [!important]
+> Always start the ladder with a `[1, N]` entry. The behavior below the lowest threshold is not defined by the configuration — and unlike Linear mode, Ladder mode has no `min`/`max` parameters to act as a safety net.
 
 ---
 
@@ -51,7 +54,7 @@ Unlike Linear scaling, the replica count changes only when a threshold is reache
 
 ## Example
 
-Ladder configured as: `10 → 2 replicas`, `20 → 3 replicas`, `40 → 5 replicas`:
+Ladder configured as: `1 → 2 replicas`, `15 → 3 replicas`, `30 → 5 replicas`:
 
 | Cluster Size | Replicas |
 |---|---|
@@ -82,23 +85,23 @@ With a formula-based approach, infrastructure services might repeatedly scale up
 
 ```yaml
 ladder:
-  - nodes: 10
+  - nodes: 1
     replicas: 2
-  - nodes: 25
+  - nodes: 11
     replicas: 3
-  - nodes: 50
+  - nodes: 26
     replicas: 5
-  - nodes: 100
+  - nodes: 51
     replicas: 8
 ```
 
-Each entry defines a scaling threshold. When the cluster reaches or exceeds a threshold, the corresponding replica count is applied.
+Each entry defines a scaling threshold. When the cluster reaches or exceeds a threshold, the corresponding replica count is applied — the entry with the largest threshold not exceeding the cluster size wins.
 
 ---
 
 ## Scaling Timeline
 
-Configured ladder: `10 → 2`, `25 → 3`, `50 → 5`, `100 → 8`.
+Configured ladder: `1 → 2`, `11 → 3`, `26 → 5`, `51 → 8`.
 
 | Nodes | Replicas |
 |---|---|
@@ -152,8 +155,8 @@ Typical examples: CoreDNS, admission controllers, monitoring services, logging a
 Thresholds can produce relatively large jumps at boundaries:
 
 ```
-24 Nodes  →  3 Replicas
-25 Nodes  →  5 Replicas
+25 Nodes  →  3 Replicas
+26 Nodes  →  5 Replicas
 ```
 
 A single node addition may trigger a significant scaling event. This behavior is expected — the algorithm intentionally prioritizes stability over precision.

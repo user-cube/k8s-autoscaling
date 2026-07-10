@@ -36,7 +36,7 @@ description: "Critical production services that must not be preempted by batch w
 Once created, every Pod referencing `critical-services` receives a priority of **100,000**.
 
 > [!note]
-> Priority values must be less than 1,000,000,000. Values ≥ 1,000,000,000 are reserved by Kubernetes for built-in system components.
+> Priority values must be less than or equal to 1,000,000,000 (one billion). Higher values are reserved by Kubernetes for built-in system components — for example, `system-cluster-critical` is 2,000,000,000.
 
 ---
 
@@ -83,7 +83,7 @@ A Deployment configured with `priorityClassName: production` automatically recei
 Many Kubernetes distributions include predefined PriorityClasses for system components:
 
 - `system-cluster-critical` — Used by cluster-level infrastructure (CoreDNS, kube-proxy, networking components)
-- `system-node-critical` — Used by node-level agents (kubelet, node problem detector)
+- `system-node-critical` — Used by node-level Pods (kube-proxy, control-plane static pods, node problem detector)
 
 > [!warning]
 > User applications should never use `system-cluster-critical` or `system-node-critical`. These classes are reserved exclusively for Kubernetes system components.
@@ -160,6 +160,6 @@ Keeping the number of classes small makes scheduling policies easier to understa
 - Pods reference a PriorityClass using `priorityClassName` in the Pod spec
 - Higher priority values receive scheduling preference
 - PriorityClasses also determine which Pods may become preemption candidates
-- Priority values must be below 1,000,000,000 — higher values are reserved for Kubernetes system use
+- Priority values must be at most 1,000,000,000 — higher values are reserved for Kubernetes system use
 - A small, well-defined set of PriorityClasses simplifies cluster operations
 - System PriorityClasses (`system-cluster-critical`, `system-node-critical`) must be reserved for Kubernetes infrastructure components

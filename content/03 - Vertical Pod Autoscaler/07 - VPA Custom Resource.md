@@ -237,7 +237,7 @@ spec:
 Applying new resource requests generally requires the affected Pod to be recreated — the VPA cannot resize a running Pod in place. When `updateMode` is set to `Auto` or `Recreate`, the Updater will evict Pods so they are replaced with updated resource requests.
 
 > [!note]
-> In-place Pod resource updates (`InPlacePodVerticalScaling`) entered beta in Kubernetes 1.31. This feature may reduce or eliminate the need for Pod recreation in future VPA versions.
+> In-place Pod resource updates (`InPlacePodVerticalScaling`) entered alpha in Kubernetes 1.27 and beta (enabled by default) in Kubernetes 1.33. VPA 1.4+ exposes this through the `InPlaceOrRecreate` update mode, reducing the need for Pod recreation.
 
 ---
 

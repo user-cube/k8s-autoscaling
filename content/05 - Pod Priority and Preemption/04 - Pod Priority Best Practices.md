@@ -46,7 +46,7 @@ Never assign `system-cluster-critical` or `system-node-critical` to user applica
 
 ## Combine Priority with Pod Disruption Budgets
 
-Priority determines **which Pods may be preempted**. Pod Disruption Budgets determine **whether those Pods may actually be removed**. Even if Pods have low priority, Kubernetes respects configured disruption budgets before performing preemption. Priority and availability policies should always be designed together.
+Priority determines **which Pods may be preempted**. Pod Disruption Budgets make those Pods **less likely to be selected**: the Scheduler prefers victims whose PDBs would not be violated. Note that this is **best-effort** — if no other victims can free enough resources, preemption proceeds even when it violates a PDB. Priority and availability policies should still be designed together, but a PDB alone is not a guarantee against preemption.
 
 ---
 

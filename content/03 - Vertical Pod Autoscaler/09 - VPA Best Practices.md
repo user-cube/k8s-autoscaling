@@ -17,8 +17,11 @@ The safest way to introduce the VPA is to begin with **Off** mode:
 
 ```yaml
 updatePolicy:
-  updateMode: Off
+  updateMode: "Off"
 ```
+
+> [!warning]
+> The quotes around `"Off"` are required. In YAML, an unquoted `Off` is parsed as the boolean `false`, and the manifest is rejected because `updateMode` expects a string.
 
 In this mode, the VPA continuously analyzes workloads but never replaces Pods. This allows engineers to answer important questions before enabling automation:
 

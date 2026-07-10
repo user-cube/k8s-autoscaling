@@ -33,10 +33,10 @@ The Updater never creates Pods itself — it initiates the replacement process a
 
 ## Pod Eviction
 
-Rather than deleting Pods directly, the Updater requests their **eviction**:
+Rather than deleting Pods directly, the Updater requests their **eviction** through the Kubernetes Eviction API. The workload controller (Deployment/ReplicaSet) then creates the replacement:
 
 ```
-Running Pod → Eviction Request → Deployment → Replacement Pod (with new resources)
+Running Pod → Eviction Request → ReplicaSet creates Replacement Pod (with new resources)
 ```
 
 Eviction integrates with Kubernetes availability mechanisms:
@@ -88,7 +88,7 @@ participant Admission
 participant Pod
 
 Recommender->>Updater: New Recommendation
-Updater->>Deployment: Evict Outdated Pod
+Updater->>Pod: Evict Outdated Pod (Eviction API)
 Deployment->>Admission: Create Replacement Pod
 Admission->>Pod: Apply Updated Resources
 ```

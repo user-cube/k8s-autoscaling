@@ -44,7 +44,7 @@ updatePolicy:
   updateMode: "Initial"
 ```
 
-Recommendations are applied **only when a Pod is created for the first time** (via the Admission Controller). If recommendations change later, existing Pods continue with their original requests — no automatic replacement occurs.
+Recommendations are applied **whenever a Pod is created** (via the Admission Controller) — including Pods recreated by normal rollouts and CI/CD deployments. What `Initial` never does is **evict running Pods**: if recommendations change later, existing Pods continue with their current requests until something else recreates them.
 
 **Example:**
 ```
@@ -96,9 +96,9 @@ The update mode determines **when** the Admission Controller's injection is trig
 | Mode | When recommendations are injected |
 |---|---|
 | Off | Never |
-| Initial | Only at first Pod creation |
-| Auto | Whenever the Updater triggers a replacement |
-| Recreate | Whenever VPA triggers Pod recreation |
+| Initial | At every Pod creation — but VPA never evicts running Pods |
+| Auto | At every Pod creation — and the Updater actively evicts outdated Pods |
+| Recreate | At every Pod creation — and VPA triggers Pod recreation |
 
 The Admission Controller always performs the same task — the mode controls the trigger.
 

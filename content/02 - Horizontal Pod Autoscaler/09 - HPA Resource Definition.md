@@ -96,9 +96,9 @@ flowchart LR
 HPA --> Deployment --> ReplicaSet --> Pods
 ```
 
-Supported workload types: `Deployment`, `StatefulSet`, `ReplicaSet`.
+Supported targets: `Deployment`, `StatefulSet`, `ReplicaSet` — and, more generally, any resource that implements the `scale` subresource, including custom resources.
 
-The target workload must already exist before the HPA is created.
+The HPA can be created before its target exists — Kubernetes does not validate the reference at creation time. Until the target exists, the HPA simply reports failing conditions (`AbleToScale=False`, `ScalingActive=False`) and performs no scaling.
 
 ---
 
@@ -117,7 +117,7 @@ Traffic → 0  →  Desired replicas: 1  →  Actual replicas: 2  (minimum enfor
 For production systems, **2 or higher** is recommended: faster response to traffic spikes, reduced cold-start latency, and improved availability.
 
 > [!note]
-> Standard HPA has a minimum of 1 replica if `minReplicas` is omitted. Scale-to-zero (0 replicas) requires KEDA.
+> Standard HPA has a minimum of 1 replica if `minReplicas` is omitted. Scale-to-zero (0 replicas) requires KEDA in practice — there is an alpha `HPAScaleToZero` feature gate allowing `minReplicas: 0` with object/external metrics, but it is not enabled by default.
 
 ---
 
@@ -182,14 +182,12 @@ Controls stabilization windows, scaling policies, percentage-based scaling, and 
 
 ## Validation
 
-When an HPA is created, Kubernetes validates:
+When an HPA is created, the API server only validates the resource itself:
 
-- Does the target Deployment exist?
 - Are replica limits valid (`min ≤ max`)?
-- Is the metric correctly defined?
-- Does the referenced API version exist?
+- Is the metric specification structurally correct?
 
-If validation fails, the HPA is rejected.
+If this validation fails, the HPA is rejected. What is **not** checked at creation time is whether the target workload exists or supports scaling — those problems only surface at runtime, as failing conditions in `kubectl describe hpa` (`AbleToScale`, `ScalingActive`).
 
 ---
 
@@ -206,7 +204,7 @@ resources:
 
 **Unrealistic replica limits** — `minReplicas: 10` / `maxReplicas: 10` completely disables autoscaling. `maxReplicas: 1000` may cause unexpected infrastructure costs.
 
-**Wrong target resource** — `scaleTargetRef` pointing to a Service instead of a Deployment is invalid. Always verify the target supports scaling.
+**Wrong target resource** — `scaleTargetRef` pointing to a Service instead of a Deployment is accepted at creation time, but fails at runtime because Service does not implement the `scale` subresource. The HPA reports `AbleToScale=False` and never scales. Always verify the target supports scaling.
 
 ---
 

@@ -26,6 +26,29 @@ Whenever the CPA evaluates the cluster, it applies the rules defined inside the 
 
 ---
 
+## Specifying the Target Workload
+
+The ConfigMap only contains the **scaling parameters**. The workload to scale is specified through command-line flags on the CPA container itself:
+
+```yaml
+containers:
+  - name: autoscaler
+    image: registry.k8s.io/cpa/cluster-proportional-autoscaler:1.9.0
+    command:
+      - /cluster-proportional-autoscaler
+      - --namespace=kube-system
+      - --configmap=dns-autoscaler
+      - --target=deployment/coredns
+      - --logtostderr=true
+```
+
+- `--configmap` — the ConfigMap holding the scaling rules
+- `--target` — the workload to scale (`deployment/*`, `replicaset/*`, or `replicationcontroller/*`)
+
+One CPA instance manages one target workload.
+
+---
+
 ## Linear Configuration
 
 ```yaml
@@ -45,6 +68,14 @@ data:
 ```
 
 The `linear` key activates the Linear algorithm. All parameters are expressed as a JSON object.
+
+When **both** `coresPerReplica` and `nodesPerReplica` are set, the CPA calculates replicas for each independently and uses the **larger** of the two results:
+
+```
+replicas = max( ceil(cores / coresPerReplica), ceil(nodes / nodesPerReplica) )
+```
+
+The Linear algorithm also supports `"preventSinglePointFailure": true`, which forces at least 2 replicas whenever the cluster has more than one node — regardless of what the formula calculates.
 
 ---
 
@@ -89,6 +120,9 @@ ladder: |-
 
 > [!note]
 > Only one algorithm (`linear` or `ladder`) should be active at a time. The CPA reads whichever key is present in the ConfigMap and ignores the other.
+
+> [!warning]
+> Ladder mode does **not** support `min` and `max` parameters — those exist only in Linear mode. In Ladder mode, the bounds come from the steps themselves, so always start the ladder with a `[1, N]` entry to define behavior for very small clusters. Unlike Linear mode, a ladder step may map to `0` replicas.
 
 ---
 
@@ -221,9 +255,9 @@ Configuration should be validated through production monitoring rather than rely
 
 ## Key Takeaways
 
-- The CPA is configured through a Kubernetes ConfigMap containing a JSON object
+- Scaling rules live in a ConfigMap; the target workload is set via the `--target` CLI flag on the CPA container
 - The `linear` key activates Linear scaling; the `ladder` key activates Ladder scaling
-- Linear scaling uses `nodesPerReplica` and/or `coresPerReplica` parameters
+- Linear scaling uses `nodesPerReplica` and/or `coresPerReplica` — when both are set, the larger result wins
 - Ladder scaling uses `nodesToReplicas` and/or `coresToReplicas` as arrays of `[threshold, replicas]` pairs
-- `min` and `max` prevent unrealistic scaling at either end of cluster size
+- `min` and `max` (Linear mode only) prevent unrealistic scaling at either end of cluster size
 - ConfigMap changes take effect without rebuilding or restarting the CPA

@@ -140,7 +140,13 @@ Observed CPU: 69%
 → No action. Wait for next cycle.
 ```
 
-This prevents unnecessary scaling operations when the workload is already within the target range.
+This behaviour is governed by the **tolerance**: the HPA skips scaling whenever the ratio between current and desired metric is close enough to 1.0. The default is 10%, controlled by the `kube-controller-manager` flag:
+
+```text
+--horizontal-pod-autoscaler-tolerance=0.1
+```
+
+While `currentMetric / desiredMetric` stays within `[0.9, 1.1]`, no scaling occurs — in the example above, `69 / 70 ≈ 0.99` is well inside the tolerance band. This prevents constant replica churn when the workload hovers around the target.
 
 ---
 
@@ -199,5 +205,6 @@ Unlike scaling up, scale-down is intentionally conservative to reduce oscillatio
 - By default, the control loop executes every **15 seconds**
 - Every cycle: collect metrics → compare targets → calculate replicas → update workload
 - Replica calculation uses `ceil[currentReplicas × (currentMetric / desiredMetric)]`
+- A default tolerance of 10% suppresses scaling while the metric ratio stays within `[0.9, 1.1]`
 - Scaling up is aggressive; scaling down is intentionally conservative
 - The Deployment controller — not the HPA — creates or terminates Pods

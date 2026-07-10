@@ -78,7 +78,7 @@ The Scheduler attempts to minimize disruption — evicting only what is strictly
 
 ## Respecting Pod Disruption Budgets
 
-Preemption does not ignore Kubernetes availability policies. If evicting a Pod would violate a PodDisruptionBudget (e.g., `minAvailable: 2` with only 2 replicas running), the Scheduler searches for another victim. If no acceptable victims exist, preemption may fail and the Pod remains Pending.
+PodDisruptionBudget support during preemption is **best-effort**. The Scheduler prefers victims whose PDBs would not be violated (e.g., it avoids evicting a Pod when `minAvailable: 2` with only 2 replicas running), but if no such victims can free enough resources, **preemption still proceeds and the PDB is violated**. A PDB delays and discourages preemption — it does not guarantee protection against it.
 
 ---
 
@@ -106,9 +106,7 @@ Once resources have been released, the Scheduler retries the original request. F
 
 **Insufficient resources** — Even after removing all eligible Pods, the available resources still do not meet the Pod's request.
 
-**Pod Disruption Budgets** — Availability constraints prevent eviction of all candidate Pods.
-
-In all these cases, the Pod remains Pending until capacity becomes available organically.
+In these cases, the Pod remains Pending until capacity becomes available organically.
 
 ---
 
@@ -169,7 +167,7 @@ Preemption decides **which Pods should leave**. Eviction performs the actual rem
 - Preemption occurs only after normal scheduling fails
 - Kubernetes selects lower-priority Pods as potential victims
 - The Scheduler minimizes disruption by evicting only the Pods required to free sufficient resources
-- Pod Disruption Budgets are respected during the preemption process
+- Pod Disruption Budgets are considered on a best-effort basis — preemption can still violate them if no other victims exist
 - Victim Pods receive graceful termination — they are not immediately killed
 - Preemption and the Cluster Autoscaler complement each other to maintain workload availability
 - Preemption is a last-resort mechanism, not a routine scheduling strategy

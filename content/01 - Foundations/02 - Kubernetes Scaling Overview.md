@@ -135,11 +135,14 @@ participant Scheduler
 participant ClusterAutoscaler
 
 Users->>HPA: Increased traffic
-HPA->>Scheduler: Create new Pods
-Scheduler->>ClusterAutoscaler: Insufficient capacity
-ClusterAutoscaler->>Scheduler: New Worker Nodes
-Scheduler->>Users: Application scales successfully
+HPA->>Scheduler: New Pods to place
+Note over Scheduler: Insufficient capacity — Pods remain Pending
+ClusterAutoscaler->>ClusterAutoscaler: Detects Pending Pods
+ClusterAutoscaler->>Scheduler: New Worker Nodes available
+Scheduler->>Users: Pods scheduled — application scales
 ```
+
+> Note: the Scheduler never "calls" the Cluster Autoscaler — the CA independently watches for Pods stuck in `Pending` and reacts by provisioning nodes.
 
 ---
 

@@ -86,7 +86,7 @@ scaleDown:
 Although the latest recommendation is 6, Kubernetes remembers the workload needed 10 replicas just minutes ago. It keeps the higher value until the stabilization window expires.
 
 **Without stabilization:** replicas track every sample (10 → 8 → 6 → 9)
-**With stabilization:** replicas stay at the safe maximum (10 → 10 → 10 → 9)
+**With stabilization:** replicas hold at the safe maximum (10 → 10 → 10 → 10) — the count only starts to decrease once the 10-replica recommendation ages out of the 5-minute window, and even then it drops only to the highest recommendation still inside the window
 
 ---
 
