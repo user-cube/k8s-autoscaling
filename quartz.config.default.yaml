@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: Terraform Associate Notes
+  pageTitle: K8S Autoscaling
   pageTitleSuffix: " · Rui Coelho"
   enableSPA: true
   enablePopovers: true
   analytics:
     provider: plausible
   locale: en-US
-  baseUrl: terraform-notes.ruicoelho.dev
+  baseUrl: k8s-autoscaling.ruicoelho.dev
   ignorePatterns:
     - private
     - templates
