@@ -20,3 +20,4 @@ description: "Study notes on Kubernetes autoscaling mechanisms — HPA, VPA, CPA
 | [[03 - Vertical Pod Autoscaler]] | VPA components, update modes, CRD, limitations, best practices |
 | [[04 - Cluster Proportional Autoscaler]] | CPA architecture, linear and ladder algorithms, configuration |
 | [[05 - Pod Priority and Preemption]] | PriorityClass, preemption process, scheduling policies |
+| [[06 - Cluster Autoscaler]] | Node provisioning, scale-down, node groups, expander strategies, best practices |
