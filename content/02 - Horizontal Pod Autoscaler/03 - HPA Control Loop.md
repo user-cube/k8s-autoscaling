@@ -140,7 +140,7 @@ Observed CPU: 69%
 → No action. Wait for next cycle.
 ```
 
-This behaviour is governed by the **tolerance**: the HPA skips scaling whenever the ratio between current and desired metric is close enough to 1.0. The default is 10%, controlled by the `kube-controller-manager` flag:
+This behavior is governed by the **tolerance**: the HPA skips scaling whenever the ratio between current and desired metric is close enough to 1.0. The default is 10%, controlled by the `kube-controller-manager` flag:
 
 ```text
 --horizontal-pod-autoscaler-tolerance=0.1
@@ -184,7 +184,7 @@ HPA->>Deployment: Reduce replicas
 Deployment->>Pods: Terminate excess Pods
 ```
 
-Unlike scaling up, scale-down is intentionally conservative to reduce oscillations caused by temporary drops in demand. The stabilization window responsible for this behaviour is covered in a later chapter.
+Unlike scaling up, scale-down is intentionally conservative to reduce oscillations caused by temporary drops in demand. The stabilization window responsible for this behavior is covered in a later chapter.
 
 ---
 

@@ -5,7 +5,7 @@ description: Learn how the VPA Admission Controller injects resource recommendat
 
 # 05 - VPA Admission Controller
 
-The **Admission Controller** is the final component of the Vertical Pod Autoscaler. While the Recommender analyses workloads and the Updater decides when Pods should be replaced, the Admission Controller ensures that **new Pods are created with the recommended CPU and memory requests**.
+The **Admission Controller** is the final component of the Vertical Pod Autoscaler. While the Recommender analyzes workloads and the Updater decides when Pods should be replaced, the Admission Controller ensures that **new Pods are created with the recommended CPU and memory requests**.
 
 Without this component, newly created Pods would continue using the original resource configuration defined in the Deployment.
 
@@ -100,7 +100,7 @@ Admission Controller
 Pod receives cpu: 900m
 ```
 
-This keeps the original workload definition separate from runtime optimisation. Infrastructure-as-Code repositories remain untouched, and the VPA does not conflict with GitOps workflows.
+This keeps the original workload definition separate from runtime optimization. Infrastructure-as-Code repositories remain untouched, and the VPA does not conflict with GitOps workflows.
 
 ---
 
@@ -163,7 +163,7 @@ Recommender --> Updater --> AdmissionController[Admission Controller] --> Optimi
 > When verifying applied recommendations, inspect running **Pods** — not the Deployment YAML, which intentionally remains unchanged.
 
 > [!warning]
-> If the Admission Controller is unavailable, new Pods may be created without optimised resource requests, depending on the webhook's `failurePolicy`.
+> If the Admission Controller is unavailable, new Pods may be created without optimized resource requests, depending on the webhook's `failurePolicy`.
 
 > [!note]
 > The Admission Controller only affects newly created Pods. Existing Pods are never modified.
@@ -177,4 +177,4 @@ Recommender --> Updater --> AdmissionController[Admission Controller] --> Optimi
 - Deployment manifests are never modified — only new Pods receive updated resource requests
 - Resource injection happens before scheduling, ensuring correct placement decisions
 - `failurePolicy` determines whether Pod creation fails or proceeds without injection when the webhook is unavailable
-- Together with Recommender and Updater, it completes the VPA optimisation pipeline
+- Together with Recommender and Updater, it completes the VPA optimization pipeline

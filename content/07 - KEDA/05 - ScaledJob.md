@@ -32,13 +32,9 @@ Consider a Deployment.
 
 ```text
 Deployment
-
 ↓
-
 Pods
-
 ↓
-
 Run Forever
 ```
 
@@ -48,13 +44,9 @@ Now consider a background task.
 
 ```
 Receive Message
-
 ↓
-
 Process File
-
 ↓
-
 Exit
 ```
 
@@ -72,13 +64,9 @@ A Deployment is intended for continuously running applications.
 
 ```text
 Deployment
-
 ↓
-
 Replica Count
-
 ↓
-
 Pods Always Running
 ```
 
@@ -86,17 +74,11 @@ A Job has a different lifecycle.
 
 ```text
 Job
-
 ↓
-
 Create Pod
-
 ↓
-
 Complete Work
-
 ↓
-
 Exit
 ```
 
@@ -110,7 +92,6 @@ ScaledJobs automate the creation of Jobs whenever external work becomes availabl
 flowchart LR
 
 ExternalEvent["External Event"] --> KEDA --> ScaledJob --> Job --> Pod --> Completed
-
 ```
 
 Unlike a ScaledObject, which adjusts the number of replicas, a ScaledJob creates entirely new Kubernetes Jobs.
@@ -125,11 +106,8 @@ Simplified example:
 
 ```yaml
 apiVersion: keda.sh/v1alpha1
-
 kind: ScaledJob
-
 metadata:
-
   name: image-processing
 ```
 
@@ -145,13 +123,9 @@ Example:
 
 ```yaml
 jobTargetRef:
-
   template:
-
     spec:
-
       containers:
-
       - name: worker
 ```
 
@@ -159,13 +133,9 @@ Conceptually:
 
 ```text
 ScaledJob
-
 ↓
-
 Job Template
-
 ↓
-
 New Kubernetes Job
 ```
 
@@ -187,13 +157,9 @@ Every 30 seconds:
 
 ```text
 Read Queue
-
 ↓
-
 Evaluate Trigger
-
 ↓
-
 Create Jobs
 ```
 
@@ -205,7 +171,6 @@ Imagine a RabbitMQ queue.
 
 ```
 Messages
-
 500
 ```
 
@@ -227,9 +192,7 @@ When a Job finishes:
 
 ```text
 Completed
-
 ↓
-
 Removed
 ```
 
@@ -274,19 +237,12 @@ KEDA may create multiple Jobs simultaneously.
 
 ```text
 Queue
-
 ↓
-
 Job 1
-
 Job 2
-
 Job 3
-
 Job 4
-
 ↓
-
 Parallel Processing
 ```
 
@@ -300,13 +256,9 @@ Once a Job finishes:
 
 ```text
 Running
-
 ↓
-
 Completed
-
 ↓
-
 Removed (per history limits)
 ```
 
@@ -390,22 +342,14 @@ Idle compute resources can be reclaimed immediately after processing completes.
 > [!tip]
 > Use ScaledJobs for finite tasks that naturally complete, such as file processing, ETL pipelines, or batch imports.
 
----
-
 > [!tip]
 > Keep Job execution independent so that multiple Jobs can run safely in parallel.
-
----
 
 > [!tip]
 > Configure sensible limits on the maximum number of concurrent Jobs to prevent overwhelming downstream systems.
 
----
-
 > [!warning]
 > ScaledJobs are not intended for continuously running services. Long-lived applications should generally use Deployments with ScaledObjects instead.
-
----
 
 > [!note]
 > A ScaledJob creates Kubernetes Jobs rather than modifying the replica count of an existing Deployment.

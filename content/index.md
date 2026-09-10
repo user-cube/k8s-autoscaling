@@ -1,6 +1,6 @@
 ---
 title: Kubernetes Autoscaling Notes
-description: "Study notes on Kubernetes autoscaling mechanisms — HPA, VPA, CPA, and Pod Priority."
+description: "Study notes on Kubernetes autoscaling mechanisms — HPA, VPA, CPA, Pod Priority, Cluster Autoscaler, and KEDA."
 ---
 
 > [!abstract] Kubernetes Autoscaling
@@ -15,7 +15,7 @@ description: "Study notes on Kubernetes autoscaling mechanisms — HPA, VPA, CPA
 
 | Section | Topics |
 |---|---|
-| [[01 - Foundations]] | Kubernetes basics, resource requests & limits, scaling overview |
+| [[01 - Foundations]] | Why autoscaling matters, scaling layers, how the autoscalers fit together |
 | [[02 - Horizontal Pod Autoscaler]] | HPA v2, metrics sources, scaling policies, stabilization windows, troubleshooting |
 | [[03 - Vertical Pod Autoscaler]] | VPA components, update modes, CRD, limitations, best practices |
 | [[04 - Cluster Proportional Autoscaler]] | CPA architecture, linear and ladder algorithms, configuration |

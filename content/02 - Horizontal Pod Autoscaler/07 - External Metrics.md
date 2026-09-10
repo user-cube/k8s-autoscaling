@@ -47,7 +47,7 @@ Waiting until CPU utilization increases would be far too late. Kubernetes should
 ```mermaid
 flowchart LR
 
-ExternalSystem["External System\n(AWS, Azure, Datadog...)"]
+ExternalSystem["External System<br/>(AWS, Azure, Datadog...)"]
 Adapter["Metrics Adapter"]
 API["external.metrics.k8s.io"]
 HPA["Horizontal Pod Autoscaler"]
@@ -136,7 +136,7 @@ In all of these cases, workload demand exists **before** Kubernetes itself exper
 | Origin | Inside the cluster | Outside the cluster |
 | Source | Pods / Kubernetes objects | Cloud services, monitoring platforms |
 | Adapter required | Yes | Yes |
-| Represents | Application behaviour | External system state |
+| Represents | Application behavior | External system state |
 
 > If the metric belongs to a Kubernetes workload → **Custom Metric**
 > If the metric belongs to another platform or service → **External Metric**
@@ -172,7 +172,7 @@ External metrics introduce additional dependencies. If the external monitoring s
 > Keep the Metrics Adapter highly available — it is a critical component of the autoscaling pipeline.
 
 > [!warning]
-> Avoid highly volatile metrics that fluctuate every few seconds, as they may cause unstable scaling behaviour.
+> Avoid highly volatile metrics that fluctuate every few seconds, as they may cause unstable scaling behavior.
 
 > [!note]
 > External Metrics are particularly useful for asynchronous and event-driven systems where CPU utilization is not a reliable indicator of demand.

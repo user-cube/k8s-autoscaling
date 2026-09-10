@@ -48,7 +48,7 @@ apiVersion: autoscaling/v2
 
 - Multiple metrics
 - Resource, Custom, and External metrics
-- Advanced scaling behaviour (stabilization windows, policies)
+- Advanced scaling behavior (stabilization windows, policies)
 
 Avoid `autoscaling/v1` in new deployments — it only supports CPU-based autoscaling.
 
@@ -166,7 +166,7 @@ Types can be combined in a single HPA resource.
 
 ## behavior (Advanced)
 
-Available in `autoscaling/v2`, allows customising scaling speed and stability:
+Available in `autoscaling/v2`, allows customizing scaling speed and stability:
 
 ```yaml
 behavior:
@@ -230,5 +230,5 @@ resources:
 - `scaleTargetRef` identifies the workload to scale
 - `minReplicas` and `maxReplicas` define the allowed scaling range
 - The `metrics` section determines when scaling occurs
-- `autoscaling/v2` is required for multiple metrics and advanced behaviour
+- `autoscaling/v2` is required for multiple metrics and advanced behavior
 - Scale-to-zero requires KEDA — standard HPA minimum is 1 replica

@@ -28,7 +28,6 @@ When a workload does not scale as expected, verify each stage of the process.
 flowchart LR
 
 ExternalSystem["External System"] --> Trigger --> KEDA --> MetricsAdapter["Metrics Adapter"] --> HPA --> Deployment --> Pods --> Scheduler
-
 ```
 
 If any component in this chain fails, autoscaling may stop working.
@@ -90,7 +89,6 @@ Verify the configuration.
 
 ```yaml
 minReplicaCount: 0
-
 cooldownPeriod: 300
 ```
 
@@ -155,17 +153,11 @@ Suppose RabbitMQ becomes unavailable.
 
 ```text
 RabbitMQ
-
 ↓
-
 Unavailable
-
 ↓
-
 No Queue Metrics
-
 ↓
-
 No Scaling
 ```
 
@@ -209,9 +201,7 @@ However:
 
 ```text
 Pods
-
 ↓
-
 Pending
 ```
 
@@ -234,13 +224,9 @@ Symptoms:
 
 ```text
 Queue
-
 0
-
 ↓
-
 Pods
-
 1
 ```
 
@@ -266,19 +252,12 @@ Useful Kubernetes commands include:
 
 ```bash
 kubectl get scaledobjects
-
 kubectl describe scaledobject <name>
-
 kubectl get hpa
-
 kubectl describe hpa
-
 kubectl get pods
-
 kubectl describe pod <pod>
-
 kubectl logs deployment/keda-operator
-
 kubectl logs deployment/keda-metrics-apiserver
 ```
 
@@ -340,22 +319,14 @@ Observability is essential for reliable autoscaling.
 > [!tip]
 > Troubleshoot the autoscaling pipeline one component at a time, starting with the external trigger and ending with the running Pods.
 
----
-
 > [!tip]
 > Use `kubectl describe scaledobject` as the starting point for most KEDA-related issues.
-
----
 
 > [!tip]
 > Verify the generated Horizontal Pod Autoscaler before investigating Kubernetes scheduling problems.
 
----
-
 > [!warning]
 > Many apparent KEDA issues are actually caused by authentication failures, unavailable external systems, or insufficient cluster capacity.
-
----
 
 > [!note]
 > Once the HPA has increased the replica count, any remaining Pending Pods should be investigated using standard Kubernetes scheduling and Cluster Autoscaler diagnostics.

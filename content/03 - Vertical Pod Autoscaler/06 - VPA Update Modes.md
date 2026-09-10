@@ -29,11 +29,11 @@ updatePolicy:
   updateMode: "Off"
 ```
 
-The Recommender analyses workloads and generates recommendations — but nothing is applied automatically. Operators review recommendations and update Deployments manually.
+The Recommender analyzes workloads and generates recommendations — but nothing is applied automatically. Operators review recommendations and update Deployments manually.
 
 **Best for:** Production databases, critical applications, initial VPA evaluation, capacity planning.
 
-Many organisations begin with `Off` to understand workload behaviour before enabling automatic updates.
+Many organizations begin with `Off` to understand workload behavior before enabling automatic updates.
 
 ---
 
@@ -109,7 +109,7 @@ The Admission Controller always performs the same task — the mode controls the
 A common adoption path:
 
 ```
-Off → review recommendations → Initial → observe behaviour → Auto
+Off → review recommendations → Initial → observe behavior → Auto
 ```
 
 This gradual approach builds confidence before enabling fully automatic updates.
@@ -141,5 +141,5 @@ This gradual approach builds confidence before enabling fully automatic updates.
 - Every mode generates recommendations — they differ only in how those recommendations are applied
 - `Off` is ideal for evaluation and capacity planning with no risk of unexpected restarts
 - `Initial` applies recommendations only at Pod creation, with no ongoing disruption
-- `Auto` provides continuous optimisation and is the recommended mode for cloud-native workloads
+- `Auto` provides continuous optimization and is the recommended mode for cloud-native workloads
 - Choosing the correct mode is essential for balancing automation with application availability

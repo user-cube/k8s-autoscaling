@@ -27,17 +27,11 @@ Kafka applications are typically built around producers and consumers.
 
 ```text
 Producer
-
 ↓
-
 Kafka Topic
-
 ↓
-
 Consumer Group
-
 ↓
-
 Worker Pods
 ```
 
@@ -60,13 +54,9 @@ Example:
 
 ```text
 Messages Produced
-
 100,000
-
 -------------------
-
 Messages Consumed
-
 95,000
 ```
 
@@ -74,7 +64,6 @@ Result:
 
 ```text
 Consumer Lag
-
 5,000 Messages
 ```
 
@@ -88,7 +77,6 @@ A growing lag usually indicates that consumers cannot keep up with incoming traf
 flowchart LR
 
 Producer --> KafkaTopic["Kafka Topic"] --> KEDA --> HorizontalPodAutoscaler --> Deployment --> ConsumerPods["Consumer Pods"]
-
 ```
 
 KEDA continuously monitors consumer lag and exposes it as an external metric to the Horizontal Pod Autoscaler.
@@ -101,15 +89,10 @@ Imagine a consumer application.
 
 ```text
 Consumer Pods
-
 ↓
-
 Waiting for Messages
-
 ↓
-
 CPU
-
 10%
 ```
 
@@ -117,7 +100,6 @@ Suddenly:
 
 ```text
 Kafka Lag
-
 50,000 Messages
 ```
 
@@ -135,17 +117,11 @@ A simplified Kafka trigger might look like this.
 
 ```yaml
 triggers:
-
 - type: kafka
-
   metadata:
-
     bootstrapServers: kafka:9092
-
     consumerGroup: orders
-
     topic: orders
-
     lagThreshold: "100"
 ```
 
@@ -163,7 +139,6 @@ Suppose the application currently has:
 
 ```text
 Pods
-
 2
 ```
 
@@ -183,15 +158,10 @@ Result:
 
 ```text
 Consumer Lag
-
 5,000
-
 ↓
-
 ceil(5,000 / 100) = 50
-
 ↓
-
 50 Pods (capped by maxReplicaCount and by the topic's partition count)
 ```
 
@@ -205,19 +175,12 @@ As messages are processed:
 
 ```text
 Consumer Lag
-
 5,000
-
 ↓
-
 1,000
-
 ↓
-
 100
-
 ↓
-
 0
 ```
 
@@ -243,13 +206,9 @@ Example:
 
 ```text
 Kafka Topic
-
 ↓
-
 Consumer Group
-
 ↓
-
 Consumer Pods
 ```
 
@@ -267,11 +226,8 @@ A consumer beyond the partition count would receive no partition assignment and 
 
 ```text
 Topic: 12 partitions
-
 Lag suggests: 50 consumers
-
 ↓
-
 KEDA caps at 12 Pods
 ```
 
@@ -316,22 +272,14 @@ Both metrics measure pending work, but they reflect different messaging models.
 > [!tip]
 > Scale according to consumer lag rather than CPU utilization. Lag provides a much more accurate representation of streaming workload.
 
----
-
 > [!tip]
 > Ensure Kafka topics have sufficient partitions to benefit from additional consumer Pods.
-
----
 
 > [!tip]
 > Monitor both consumer lag and processing throughput when tuning scaling thresholds.
 
----
-
 > [!warning]
 > Increasing the number of Pods cannot improve throughput if the Kafka topic has too few partitions. Consumer parallelism is ultimately limited by partition count.
-
----
 
 > [!note]
 > The Kafka Trigger monitors consumer lag for a specific consumer group. Different consumer groups processing the same topic may scale independently.

@@ -21,13 +21,9 @@ Consider a message processing application.
 
 ```text
 Producer
-
 ↓
-
 RabbitMQ Queue
-
 ↓
-
 Worker Pods
 ```
 
@@ -35,11 +31,8 @@ Initially:
 
 ```text
 Queue
-
 0 Messages
-
 ↓
-
 1 Worker
 ```
 
@@ -47,13 +40,9 @@ Later, thousands of new messages arrive.
 
 ```text
 Queue
-
 10,000 Messages
-
 ↓
-
 Still
-
 1 Worker
 ```
 
@@ -71,7 +60,6 @@ The RabbitMQ Trigger solves this problem by monitoring the queue directly.
 flowchart LR
 
 Producer --> RabbitMQ --> KEDA --> HorizontalPodAutoscaler --> Deployment --> WorkerPods["Worker Pods"]
-
 ```
 
 KEDA periodically checks the queue length and exposes it as an external metric to the HPA.
@@ -86,7 +74,6 @@ Example:
 
 ```text
 Queue
-
 250 Messages
 ```
 
@@ -100,9 +87,7 @@ Evaluation:
 
 ```text
 ceil(250 / 50)
-
 ↓
-
 5 Workers
 ```
 
@@ -116,13 +101,9 @@ A simplified RabbitMQ trigger looks like this.
 
 ```yaml
 triggers:
-
 - type: rabbitmq
-
   metadata:
-
     queueName: orders
-
     queueLength: "50"
 ```
 
@@ -142,7 +123,6 @@ Suppose the Deployment currently has:
 
 ```text
 Pods
-
 2
 ```
 
@@ -150,7 +130,6 @@ Current queue:
 
 ```text
 Messages
-
 600
 ```
 
@@ -164,15 +143,10 @@ KEDA calculates that additional workers are required.
 
 ```text
 Queue
-
 600
-
 ↓
-
 HPA
-
 ↓
-
 12 Pods
 ```
 
@@ -186,19 +160,12 @@ As workers process messages:
 
 ```text
 Queue
-
 600
-
 ↓
-
 200
-
 ↓
-
 50
-
 ↓
-
 0
 ```
 
@@ -216,13 +183,9 @@ the Deployment eventually reaches:
 
 ```text
 Queue
-
 Empty
-
 ↓
-
 Pods
-
 0
 ```
 
@@ -253,7 +216,6 @@ Imagine two worker Pods.
 
 ```text
 CPU
-
 15%
 ```
 
@@ -261,7 +223,6 @@ Meanwhile:
 
 ```text
 Queue
-
 25,000 Messages
 ```
 
@@ -278,25 +239,17 @@ This allows Kubernetes to react much earlier than CPU-based autoscaling.
 > [!tip]
 > Choose queue length thresholds based on acceptable processing latency rather than arbitrary values.
 
----
-
 > [!tip]
 > Combine the RabbitMQ Trigger with `minReplicaCount: 0` for workloads that spend long periods idle.
-
----
 
 > [!tip]
 > Monitor both queue length and message processing time to validate scaling behavior in production.
 
----
-
 > [!warning]
 > Setting the queue threshold too low may cause frequent scaling events, while values that are too high may delay message processing.
 
----
-
 > [!note]
-> The RabbitMQ Trigger monitors the queue—it does not inspect the contents of individual messages.
+> The RabbitMQ Trigger monitors the queue — it does not inspect the contents of individual messages.
 
 ---
 

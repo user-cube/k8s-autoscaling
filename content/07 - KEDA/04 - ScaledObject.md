@@ -30,17 +30,11 @@ Conceptually:
 
 ```text
 ScaledObject
-
 ↓
-
 Target Workload
-
 ↓
-
 External Trigger
-
 ↓
-
 Scaling Rules
 ```
 
@@ -54,7 +48,6 @@ The ScaledObject connects an application with one or more external event sources
 flowchart LR
 
 ScaledObject --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
-
 ```
 
 The ScaledObject defines the desired behavior.
@@ -69,21 +62,13 @@ A ScaledObject contains four main sections.
 
 ```yaml
 apiVersion: keda.sh/v1alpha1
-
 kind: ScaledObject
-
 metadata:
-
   name: worker-scaler
-
 spec:
-
   scaleTargetRef:
-
   pollingInterval:
-
   cooldownPeriod:
-
   triggers:
 ```
 
@@ -99,7 +84,6 @@ Example:
 
 ```yaml
 scaleTargetRef:
-
   name: order-worker
 ```
 
@@ -107,13 +91,9 @@ Conceptually:
 
 ```text
 ScaledObject
-
 ↓
-
 Deployment
-
 ↓
-
 order-worker
 ```
 
@@ -135,11 +115,8 @@ Meaning:
 
 ```text
 Every
-
 30 Seconds
-
 ↓
-
 Read External Metric
 ```
 
@@ -161,15 +138,10 @@ Meaning:
 
 ```text
 Queue Empty
-
 ↓
-
 Wait
-
 5 Minutes
-
 ↓
-
 Scale 1 → 0
 ```
 
@@ -194,13 +166,9 @@ Current state:
 
 ```text
 Queue
-
 Empty
-
 ↓
-
 Pods
-
 0
 ```
 
@@ -222,7 +190,6 @@ Suppose workload demand increases dramatically.
 
 ```
 Desired Replicas
-
 120
 ```
 
@@ -242,13 +209,10 @@ Three optional fields are worth knowing in production:
 
 ```yaml
 spec:
-
   fallback:
     failureThreshold: 3
     replicas: 5
-
   idleReplicaCount: 0
-
   advanced:
     horizontalPodAutoscalerConfig:
       behavior:
@@ -270,7 +234,6 @@ Example:
 
 ```yaml
 triggers:
-
 - type: rabbitmq
 ```
 
@@ -295,35 +258,20 @@ The following example scales a Deployment according to the number of RabbitMQ me
 
 ```yaml
 apiVersion: keda.sh/v1alpha1
-
 kind: ScaledObject
-
 metadata:
-
   name: order-worker
-
 spec:
-
   scaleTargetRef:
-
     name: order-worker
-
   pollingInterval: 30
-
   cooldownPeriod: 300
-
   minReplicaCount: 0
-
   maxReplicaCount: 20
-
   triggers:
-
   - type: rabbitmq
-
     metadata:
-
       queueName: orders
-
       queueLength: "50"
 ```
 
@@ -345,7 +293,6 @@ The lifecycle of a ScaledObject is straightforward.
 flowchart LR
 
 Create["Create ScaledObject"] --> Operator["KEDA Operator"] --> HPA["Create HPA"] --> Monitor["Monitor Trigger"] --> Scale["Scale Deployment"]
-
 ```
 
 The Operator continuously reconciles the ScaledObject with the actual cluster state.
@@ -360,11 +307,8 @@ Example:
 
 ```yaml
 triggers:
-
 - type: rabbitmq
-
 - type: prometheus
-
 - type: cron
 ```
 
@@ -372,21 +316,13 @@ Conceptually:
 
 ```text
 RabbitMQ
-
 ↓
-
 Prometheus
-
 ↓
-
 Cron
-
 ↓
-
 KEDA
-
 ↓
-
 Deployment
 ```
 
@@ -402,17 +338,11 @@ Typical workflow:
 
 ```text
 Edit ScaledObject
-
 ↓
-
 Apply Changes
-
 ↓
-
 KEDA Detects Update
-
 ↓
-
 Scaling Behavior Changes
 ```
 
@@ -428,17 +358,11 @@ In reality:
 
 ```text
 ScaledObject
-
 ↓
-
 KEDA
-
 ↓
-
 Creates HPA
-
 ↓
-
 HPA Controls Replicas
 ```
 
@@ -451,22 +375,14 @@ The HPA remains the Kubernetes component responsible for changing the number of 
 > [!tip]
 > Keep each ScaledObject focused on a single application or workload. This simplifies troubleshooting and operational management.
 
----
-
 > [!tip]
 > Configure realistic minimum and maximum replica counts based on expected workload characteristics.
-
----
 
 > [!tip]
 > Choose polling and cooldown values that balance responsiveness with stability.
 
----
-
 > [!warning]
 > Excessively low polling intervals may place unnecessary load on external systems and increase scaling activity.
-
----
 
 > [!note]
 > A ScaledObject defines **what** should trigger scaling. The Horizontal Pod Autoscaler still performs the actual replica calculations.

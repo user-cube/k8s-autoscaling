@@ -29,31 +29,18 @@ Without reusable authentication:
 
 ```text
 ScaledObject A
-
 ↓
-
 Username
-
 Password
-
 --------------------
-
 ScaledObject B
-
 ↓
-
 Username
-
 Password
-
 --------------------
-
 ScaledObject C
-
 ↓
-
 Username
-
 Password
 ```
 
@@ -71,7 +58,6 @@ Instead, KEDA separates authentication from scaling configuration.
 flowchart LR
 
 TriggerAuthentication --> ScaledObject --> KEDA --> ExternalSystem["External System"]
-
 ```
 
 The ScaledObject references an authentication resource rather than storing credentials directly.
@@ -88,17 +74,11 @@ Conceptually:
 
 ```text
 Namespace
-
 ↓
-
 TriggerAuthentication
-
 ↓
-
 ScaledObject
-
 ↓
-
 RabbitMQ
 ```
 
@@ -112,13 +92,9 @@ A simplified TriggerAuthentication resource looks like this.
 
 ```yaml
 apiVersion: keda.sh/v1alpha1
-
 kind: TriggerAuthentication
-
 metadata:
-
   name: rabbitmq-auth
-
 spec:
 ```
 
@@ -134,13 +110,9 @@ Example:
 
 ```yaml
 spec:
-
   secretTargetRef:
-
   - parameter: host
-
     name: rabbitmq-secret
-
     key: host
 ```
 
@@ -148,17 +120,11 @@ Conceptually:
 
 ```text
 Kubernetes Secret
-
 ↓
-
 TriggerAuthentication
-
 ↓
-
 ScaledObject
-
 ↓
-
 RabbitMQ
 ```
 
@@ -174,7 +140,6 @@ Example:
 
 ```yaml
 authenticationRef:
-
   name: rabbitmq-auth
 ```
 
@@ -182,17 +147,11 @@ Workflow:
 
 ```text
 ScaledObject
-
 ↓
-
 TriggerAuthentication
-
 ↓
-
 Secret
-
 ↓
-
 RabbitMQ
 ```
 
@@ -210,17 +169,11 @@ For these situations, KEDA provides **ClusterTriggerAuthentication**.
 
 ```text
 Cluster
-
 ↓
-
 ClusterTriggerAuthentication
-
 ↓
-
 Namespace A
-
 Namespace B
-
 Namespace C
 ```
 
@@ -327,25 +280,17 @@ This aligns with Kubernetes' declarative design philosophy.
 > [!tip]
 > Store credentials in Kubernetes Secrets rather than embedding them directly inside ScaledObjects.
 
----
-
 > [!tip]
 > Reuse TriggerAuthentication resources whenever multiple ScaledObjects connect to the same external system.
-
----
 
 > [!tip]
 > Use ClusterTriggerAuthentication only when credentials genuinely need to be shared across multiple namespaces.
 
----
-
 > [!warning]
 > Avoid placing usernames, passwords, API keys, or connection strings directly inside ScaledObject definitions.
 
----
-
 > [!note]
-> TriggerAuthentication provides authentication only. It does not define scaling behavior—that remains the responsibility of the ScaledObject.
+> TriggerAuthentication provides authentication only. It does not define scaling behavior — that remains the responsibility of the ScaledObject.
 
 ---
 

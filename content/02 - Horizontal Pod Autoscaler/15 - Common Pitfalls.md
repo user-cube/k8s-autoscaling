@@ -205,4 +205,4 @@ Understanding these pitfalls helps design autoscaling strategies that remain sta
 - Avoid aggressive scale-down — oscillation is expensive
 - HPA cannot provision nodes — combine with Cluster Autoscaler
 - Monitor continuously; autoscaling is not "set and forget"
-- Validate scaling behaviour through load testing before production
+- Validate scaling behavior through load testing before production

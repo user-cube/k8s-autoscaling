@@ -15,7 +15,7 @@ Without restrictions, the HPA could react aggressively to every metric change. A
 
 ## The `behavior` Section
 
-Scaling behaviour is configured using the `behavior` field of the HPA resource:
+Scaling behavior is configured using the `behavior` field of the HPA resource:
 
 ```yaml
 spec:
@@ -108,7 +108,7 @@ behavior:
     selectPolicy: Max
 ```
 
-| Option | Behaviour |
+| Option | Behavior |
 |---|---|
 | `Max` | Use the most aggressive policy (default) |
 | `Min` | Use the most conservative policy |
@@ -202,7 +202,7 @@ behavior:
 ## Key Takeaways
 
 - Scaling Policies control the rate at which the HPA changes replica counts
-- Scale-up and scale-down behaviour are configured independently in the `behavior` section
+- Scale-up and scale-down behavior are configured independently in the `behavior` section
 - Policies can use percentages or fixed replica counts
 - Multiple policies can coexist; `selectPolicy` (`Max`, `Min`, `Disabled`) determines which applies
 - Most production systems scale up aggressively and scale down conservatively

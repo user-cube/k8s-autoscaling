@@ -39,7 +39,7 @@ Resource Usage → Recommender → Recommendations → Updater → Pod Recreatio
 
 | Component | Responsibility |
 |---|---|
-| Recommender | Analyse historical resource usage and produce recommendations |
+| Recommender | Analyze historical resource usage and produce recommendations |
 | Updater | Decide when Pods should be replaced with updated resources |
 | Admission Controller | Inject updated resource requests into newly created Pods |
 
@@ -153,8 +153,8 @@ Separating responsibilities allows each component to evolve independently:
 ## Key Takeaways
 
 - The VPA consists of three independent components: Recommender, Updater, and Admission Controller
-- The **Recommender** analyses historical usage — it never modifies Pods
+- The **Recommender** analyzes historical usage — it never modifies Pods
 - The **Updater** orchestrates Pod replacement when recommendations differ significantly from current requests
 - The **Admission Controller** transparently injects updated resources into new Pods at creation time
 - The Deployment manifest is never modified — changes happen at the Pod level
-- VPA prioritises long-term accuracy over immediate reaction
+- VPA prioritizes long-term accuracy over immediate reaction

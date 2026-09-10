@@ -25,13 +25,9 @@ During the day:
 
 ```text
 Queue
-
 ↓
-
 Thousands of Messages
-
 ↓
-
 Workers Running
 ```
 
@@ -39,13 +35,9 @@ At night:
 
 ```text
 Queue
-
 ↓
-
 Empty
-
 ↓
-
 Workers Waiting
 ```
 
@@ -61,7 +53,6 @@ KEDA eliminates this unnecessary resource consumption.
 flowchart LR
 
 Queue["Queue Empty"] --> KEDA --> ScaleDown["0 Pods"] --> Message["New Message"] --> KEDA --> ScaleUp["Create Pods"]
-
 ```
 
 Pods exist only while there is actual work to perform.
@@ -74,13 +65,9 @@ Suppose a message processing application starts with:
 
 ```text
 Queue
-
 0 Messages
-
 ↓
-
 Pods
-
 0
 ```
 
@@ -94,13 +81,9 @@ KEDA detects the event.
 
 ```text
 Queue
-
 250 Messages
-
 ↓
-
 Pods
-
 5
 ```
 
@@ -108,19 +91,12 @@ As messages are processed:
 
 ```text
 Queue
-
 250
-
 ↓
-
 100
-
 ↓
-
 20
-
 ↓
-
 0
 ```
 
@@ -128,7 +104,6 @@ KEDA gradually reduces the replica count until:
 
 ```text
 Pods
-
 0
 ```
 
@@ -192,9 +167,7 @@ Without Scale to Zero:
 
 ```text
 24 Hours
-
 ↓
-
 Pods Running
 ```
 
@@ -202,17 +175,11 @@ With KEDA:
 
 ```text
 2 Hours
-
 ↓
-
 Pods Running
-
 --------------------
-
 22 Hours
-
 ↓
-
 0 Pods
 ```
 
@@ -228,21 +195,13 @@ When a new event arrives:
 
 ```text
 Message Arrives
-
 ↓
-
 Create Pod
-
 ↓
-
 Pull Image
-
 ↓
-
 Start Container
-
 ↓
-
 Process Message
 ```
 
@@ -296,19 +255,12 @@ Suppose every worker Pod scales to zero.
 
 ```text
 Pods
-
 0
-
 ↓
-
 Worker Nodes Idle
-
 ↓
-
 Cluster Autoscaler
-
 ↓
-
 Remove Worker Nodes
 ```
 
@@ -326,22 +278,14 @@ This creates a fully elastic Kubernetes platform.
 > [!tip]
 > Use Scale to Zero for event-driven workloads that spend long periods idle.
 
----
-
 > [!tip]
 > Measure container startup time to ensure it meets application requirements.
-
----
 
 > [!tip]
 > Combine KEDA with the Cluster Autoscaler to maximize infrastructure cost savings.
 
----
-
 > [!warning]
 > Scale to Zero introduces startup latency because Pods must be created before work can begin.
-
----
 
 > [!note]
 > Scale to Zero affects application replicas. If no Worker Nodes are available, the Cluster Autoscaler may also need to provision new infrastructure before Pods can start.

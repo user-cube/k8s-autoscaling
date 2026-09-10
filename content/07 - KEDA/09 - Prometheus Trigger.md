@@ -47,7 +47,6 @@ KEDA simply transforms them into autoscaling signals.
 flowchart LR
 
 Application --> Prometheus --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
-
 ```
 
 Prometheus stores the metrics.
@@ -64,7 +63,6 @@ The workflow is straightforward.
 flowchart LR
 
 Metric["Application Metric"] --> Prometheus --> PromQL["PromQL Query"] --> KEDA --> HPA --> Pods
-
 ```
 
 Instead of monitoring a queue or database, KEDA evaluates the result of a Prometheus query.
@@ -105,9 +103,7 @@ Result:
 
 ```text
 ceil(250 / 100)
-
 ↓
-
 3 Replicas
 ```
 
@@ -121,17 +117,11 @@ A simplified Prometheus trigger might look like this.
 
 ```yaml
 triggers:
-
 - type: prometheus
-
   metadata:
-
     serverAddress: http://prometheus:9090
-
     query: |
-
       rate(http_requests_total[1m])
-
     threshold: "100"
 ```
 
@@ -153,7 +143,6 @@ Current application:
 
 ```text
 Pods
-
 3
 ```
 
@@ -161,7 +150,6 @@ Prometheus query result:
 
 ```text
 Requests/sec
-
 600
 ```
 
@@ -177,7 +165,6 @@ The HPA calculates:
 
 ```text
 Desired Replicas
-
 ceil(600 / 100) = 6
 ```
 
@@ -191,19 +178,12 @@ Traffic decreases.
 
 ```text
 Requests/sec
-
 600
-
 ↓
-
 250
-
 ↓
-
 80
-
 ↓
-
 20
 ```
 
@@ -294,22 +274,14 @@ Prometheus enables autoscaling based on metrics that truly represent application
 > [!tip]
 > Choose Prometheus metrics that directly reflect workload demand rather than low-level infrastructure statistics.
 
----
-
 > [!tip]
 > Keep PromQL queries efficient. Complex queries executed too frequently may increase the load on Prometheus.
-
----
 
 > [!tip]
 > Validate scaling thresholds using production monitoring before deploying them in critical environments.
 
----
-
 > [!warning]
-> Poorly designed PromQL queries can produce unstable scaling behaviour or place unnecessary load on the monitoring system.
-
----
+> Poorly designed PromQL queries can produce unstable scaling behavior or place unnecessary load on the monitoring system.
 
 > [!note]
 > KEDA evaluates the **result of a PromQL query**, not the raw metric itself. Any valid Prometheus query can potentially become a scaling signal.

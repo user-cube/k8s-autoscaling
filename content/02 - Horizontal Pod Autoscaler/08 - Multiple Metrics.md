@@ -125,7 +125,7 @@ HPA selects: **12 replicas**
 
 ---
 
-## Scale-Down Behaviour
+## Scale-Down Behavior
 
 Multiple metrics also affect scale-down decisions conservatively:
 
@@ -143,7 +143,7 @@ Although CPU suggests 3 replicas are sufficient, queue length still requires 6. 
 
 | Benefit | Description |
 |---|---|
-| Better Accuracy | Different metrics describe different aspects of workload behaviour |
+| Better Accuracy | Different metrics describe different aspects of workload behavior |
 | Increased Reliability | Protected even when one metric fails to reflect actual demand |
 | Better UX | Business metrics complement infrastructure metrics |
 | Production Flexibility | A single HPA can support complex multi-signal scenarios |
@@ -162,7 +162,7 @@ Metrics should complement each other rather than contradict. If CPU says "scale 
 > Combine infrastructure metrics with business metrics whenever possible.
 
 > [!tip]
-> Prefer metrics that represent different aspects of workload behaviour rather than duplicating the same signal.
+> Prefer metrics that represent different aspects of workload behavior rather than duplicating the same signal.
 
 > [!warning]
 > Avoid combining metrics that naturally conflict unless there is a clear operational reason to do so.

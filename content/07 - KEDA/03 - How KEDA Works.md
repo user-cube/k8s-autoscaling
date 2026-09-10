@@ -19,7 +19,6 @@ At a high level, KEDA works as follows:
 flowchart LR
 
 ExternalSystem["External System"] --> KEDAOperator["KEDA Operator"] --> HPA["Horizontal Pod Autoscaler"] --> Deployment["Deployment"] --> Pods["Pods"]
-
 ```
 
 Each component has a specific responsibility.
@@ -34,9 +33,7 @@ Instead, the KEDA Operator **polls** the configured external source at a fixed i
 
 ```text
 Every pollingInterval Seconds
-
 ↓
-
 Read Metric From External System
 ```
 
@@ -76,13 +73,9 @@ Instead, the **KEDA Metrics Adapter** serves the metric through the Kubernetes E
 
 ```text
 HPA queries External Metrics API
-
 ↓
-
 KEDA Metrics Adapter returns current value
-
 ↓
-
 HPA Recalculates Desired Replicas
 ```
 
@@ -96,13 +89,9 @@ The HPA adjusts the number of Pods in the target Deployment.
 
 ```text
 HPA
-
 ↓
-
 Updates Deployment replicas field
-
 ↓
-
 Kubernetes schedules new Pods (or terminates existing ones)
 ```
 
@@ -120,13 +109,9 @@ With KEDA:
 
 ```text
 Queue Empty
-
 ↓
-
 minReplicaCount: 0
-
 ↓
-
 Deployment scaled to 0 Pods
 ```
 
@@ -140,17 +125,11 @@ When a workload is at zero replicas and a new event is detected:
 
 ```text
 New Message in Queue
-
 ↓
-
 KEDA Operator detects metric above activationThreshold
-
 ↓
-
 Operator scales Deployment 0 → 1
-
 ↓
-
 HPA takes over and scales 1 → N if needed
 ```
 
@@ -165,13 +144,9 @@ The `cooldownPeriod` applies **only to the final scale-to-zero step** (1 → 0).
 
 ```text
 Queue Empty
-
 ↓
-
 Wait cooldownPeriod Seconds
-
 ↓
-
 Scale 1 → 0
 ```
 
@@ -194,21 +169,13 @@ KEDA and the Cluster Autoscaler work together when demand exceeds available node
 
 ```text
 KEDA scales Deployment up
-
 ↓
-
 New Pods enter Pending state (no available nodes)
-
 ↓
-
 Cluster Autoscaler detects Pending Pods
-
 ↓
-
 Provisions new nodes
-
 ↓
-
 Pods are scheduled and run
 ```
 
@@ -223,13 +190,9 @@ The KEDA Metrics Adapter exposes external metrics to the Kubernetes External Met
 
 ```text
 HPA queries Kubernetes External Metrics API
-
 ↓
-
 KEDA Metrics Adapter provides value
-
 ↓
-
 HPA uses value in replica calculation
 ```
 

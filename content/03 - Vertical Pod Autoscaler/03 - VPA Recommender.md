@@ -5,7 +5,7 @@ description: Learn how the VPA Recommender analyzes historical resource usage an
 
 # 03 - VPA Recommender
 
-The **Recommender** is the core intelligence of the Vertical Pod Autoscaler. It continuously analyses how applications consume CPU and memory, then calculates the optimal resource requests for future Pods.
+The **Recommender** is the core intelligence of the Vertical Pod Autoscaler. It continuously analyzes how applications consume CPU and memory, then calculates the optimal resource requests for future Pods.
 
 Unlike the HPA — which reacts to current metrics every 15 seconds — the Recommender makes decisions based on **historical resource usage**. Its goal is not speed, it is accuracy.
 
@@ -15,7 +15,7 @@ Unlike the HPA — which reacts to current metrics every 15 seconds — the Reco
 
 > How much CPU and memory does this application actually need?
 
-For every managed Pod, the Recommender analyses:
+For every managed Pod, the Recommender analyzes:
 
 - CPU and memory usage over time
 - Historical trends and lifecycle events
@@ -110,7 +110,7 @@ The Recommender also learns from Pod lifecycle events. If a Pod repeatedly termi
 Memory Limit: 512Mi → OOMKilled → OOMKilled → OOMKilled
 ```
 
-The Recommender recognises this pattern and increases its future memory recommendation. Conversely, if a Pod consistently uses only a small fraction of allocated resources, the recommendation may decrease.
+The Recommender recognizes this pattern and increases its future memory recommendation. Conversely, if a Pod consistently uses only a small fraction of allocated resources, the recommendation may decrease.
 
 ---
 
@@ -154,7 +154,7 @@ Version 1 CPU: 300m
 After new feature release CPU: 850m
 ```
 
-The Recommender gradually adjusts to reflect new behaviour, allowing the VPA to evolve alongside the application.
+The Recommender gradually adjusts to reflect new behavior, allowing the VPA to evolve alongside the application.
 
 ---
 
@@ -164,7 +164,7 @@ The Recommender gradually adjusts to reflect new behaviour, allowing the VPA to 
 > Allow the Recommender sufficient time to collect historical data before evaluating its output — recommendations improve significantly over the first few days.
 
 > [!tip]
-> Review recommendations after major application releases — significant changes often indicate that resource behaviour has evolved.
+> Review recommendations after major application releases — significant changes often indicate that resource behavior has evolved.
 
 > [!warning]
 > Do not expect accurate recommendations immediately after deploying a new application. Initial recommendations may be conservative or imprecise.
@@ -177,7 +177,7 @@ The Recommender gradually adjusts to reflect new behaviour, allowing the VPA to 
 ## Key Takeaways
 
 - The Recommender is the analytical component of the VPA — it produces recommendations, nothing more
-- It analyses historical CPU and memory usage, not just current utilization
+- It analyzes historical CPU and memory usage, not just current utilization
 - Recommendations include Lower Bound, Target, and Upper Bound values
 - CPU and memory are evaluated differently — memory recommendations are more conservative due to OOM risk
 - OOM events directly influence future memory recommendations

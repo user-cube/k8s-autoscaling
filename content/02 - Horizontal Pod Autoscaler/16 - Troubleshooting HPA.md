@@ -96,7 +96,7 @@ TARGETS
 
 ## Step 5 — Verify Replica Limits
 
-The HPA may be working correctly but constrained by its own configuration. If demand requires 12 replicas but `maxReplicas: 5`, the HPA stops at 5 — this is expected behaviour. Verify that configured limits match the application's expected workload.
+The HPA may be working correctly but constrained by its own configuration. If demand requires 12 replicas but `maxReplicas: 5`, the HPA stops at 5 — this is expected behavior. Verify that configured limits match the application's expected workload.
 
 ---
 

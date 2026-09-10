@@ -52,7 +52,7 @@ The VPA solves both problems automatically.
 | | HPA | VPA |
 |---|---|---|
 | What changes | Number of Pods | CPU and memory per Pod |
-| Best for | Stateless, horizontally scalable apps | Resource optimisation, stateful apps |
+| Best for | Stateless, horizontally scalable apps | Resource optimization, stateful apps |
 | Action | Creates/removes replicas | Resizes existing Pods |
 | Improves | Throughput | Resource allocation efficiency |
 
@@ -71,7 +71,7 @@ flowchart LR
 Application --> Metrics --> VPA[Vertical Pod Autoscaler] --> Recommendations[Updated Resource Recommendations] --> Pods
 ```
 
-Unlike the HPA, which reacts to current utilization, the VPA analyses **historical resource consumption** to identify long-term usage patterns rather than responding to temporary spikes.
+Unlike the HPA, which reacts to current utilization, the VPA analyzes **historical resource consumption** to identify long-term usage patterns rather than responding to temporary spikes.
 
 The VPA continuously answers two questions:
 
@@ -121,14 +121,14 @@ These applications often benefit more from additional resources than from additi
 - The application cannot easily scale horizontally
 - Resource consumption changes significantly over time
 - Accurate CPU/memory requests are hard to determine upfront
-- Optimising cluster utilisation is a priority
+- Optimizing cluster utilization is a priority
 
 **Choose HPA when:**
 - The application is stateless and horizontally scalable
 - Requests can be distributed across multiple replicas
 - Low latency is critical (new Pods respond immediately)
 
-Most web APIs and microservices favour HPA. Databases, ML workloads, and legacy software often favour VPA.
+Most web APIs and microservices favor HPA. Databases, ML workloads, and legacy software often favor VPA.
 
 ---
 
@@ -138,14 +138,14 @@ Most web APIs and microservices favour HPA. Databases, ML workloads, and legacy 
 - Reduces manual resource tuning
 - Prevents over-provisioning and infrastructure waste
 - Helps prevent OOM kills and CPU throttling
-- Improves overall cluster resource utilisation
+- Improves overall cluster resource utilization
 
 ---
 
 ## Key Takeaways
 
 - VPA adjusts CPU and memory per Pod instead of changing replica count
-- It analyses historical usage rather than reacting to current utilization
+- It analyzes historical usage rather than reacting to current utilization
 - Resource updates typically require Pod recreation (in-place resize is beta since Kubernetes 1.33; VPA 1.4+ supports it via `InPlaceOrRecreate`)
 - Ideal for workloads that cannot scale horizontally
 - Complements HPA — they solve different problems

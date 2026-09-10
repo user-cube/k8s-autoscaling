@@ -140,13 +140,9 @@ Instead:
 
 ```text
 Secret
-
 ↓
-
 TriggerAuthentication
-
 ↓
-
 ScaledObject
 ```
 
@@ -210,7 +206,6 @@ Together they provide complete elasticity.
 flowchart TD
 
 ExternalEvent --> KEDA --> HPA --> Deployment --> Scheduler --> ClusterAutoscaler --> WorkerNodes["Worker Nodes"]
-
 ```
 
 Applications scale according to workload.
@@ -255,16 +250,16 @@ Scaling should always match the application's actual processing capacity.
 
 Before deploying KEDA, verify:
 
-- Appropriate trigger selected.
-- Authentication configured securely.
-- Polling interval tuned.
-- Cooldown period configured.
-- Scale to Zero evaluated.
-- Replica limits configured.
-- Monitoring dashboards available.
-- Autoscaling tested.
-- Cluster Autoscaler enabled (if required).
-- Trigger thresholds validated using production metrics.
+- [ ] Appropriate trigger selected
+- [ ] Authentication configured securely
+- [ ] Polling interval tuned
+- [ ] Cooldown period configured
+- [ ] Scale to Zero evaluated
+- [ ] Replica limits configured
+- [ ] Monitoring dashboards available
+- [ ] Autoscaling tested
+- [ ] Cluster Autoscaler enabled (if required)
+- [ ] Trigger thresholds validated using production metrics
 
 ---
 

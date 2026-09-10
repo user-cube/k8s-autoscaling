@@ -11,7 +11,7 @@ Configuring an HPA is relatively straightforward. Designing an autoscaling strat
 
 ## Design for Horizontal Scaling
 
-HPA performs best when each Pod is independent and interchangeable — any request should reach any replica without affecting behaviour. Applications that depend on local state or in-memory sessions are poor candidates for horizontal scaling.
+HPA performs best when each Pod is independent and interchangeable — any request should reach any replica without affecting behavior. Applications that depend on local state or in-memory sessions are poor candidates for horizontal scaling.
 
 ---
 
@@ -59,7 +59,7 @@ resources:
 
 `averageUtilization: 20` causes excessive scaling under light load. `averageUtilization: 95` delays scaling until the application is already overloaded.
 
-A target between **60–75% CPU utilization** is a reasonable starting point for stateless applications — adjust based on your workload's actual behaviour.
+A target between **60–75% CPU utilization** is a reasonable starting point for stateless applications — adjust based on your workload's actual behavior.
 
 ---
 
@@ -94,16 +94,16 @@ The Kubernetes default of 300 seconds for scale-down is appropriate for most pro
 
 HPA can only help if new Pods become available quickly. Applications with startup times of several minutes will still struggle during sudden spikes.
 
-- Optimise application startup
+- Optimize application startup
 - Reduce container image size
-- Minimise initialisation work
+- Minimize initialization work
 - Delay non-essential background tasks until after startup
 
 ---
 
 ## Configure Readiness Probes
 
-Without a readiness probe, Kubernetes may send traffic to Pods still initialising:
+Without a readiness probe, Kubernetes may send traffic to Pods still initializing:
 
 ```yaml
 readinessProbe:
@@ -145,7 +145,7 @@ Validate autoscaling before production — not during an incident. Use tools lik
 
 HPA + Cluster Autoscaler: generally recommended and complementary.
 
-HPA + VPA: requires careful planning. If both adjust CPU-related behaviour simultaneously, conflicting decisions may occur. A safe approach is letting HPA handle CPU-based replica scaling while VPA adjusts memory — but validate this for each workload.
+HPA + VPA: requires careful planning. If both adjust CPU-related behavior simultaneously, conflicting decisions may occur. A safe approach is letting HPA handle CPU-based replica scaling while VPA adjusts memory — but validate this for each workload.
 
 ---
 
@@ -191,4 +191,4 @@ Before deploying an HPA to production:
 - Resource requests are essential for CPU-based autoscaling
 - Aggressive scale-up + conservative scale-down provides the best balance
 - Test under realistic load before going to production
-- Treat autoscaling as an iterative optimisation process, not a one-time task
+- Treat autoscaling as an iterative optimization process, not a one-time task

@@ -65,7 +65,7 @@ Instead of immediately removing 7 Pods, Kubernetes checks the stabilization wind
 | Approach | Aggressive | Conservative |
 | Action | Creates Pods | Removes Pods |
 
-This asymmetry is intentional. Production workloads benefit more from temporary over-provisioning than from aggressive cost optimisation.
+This asymmetry is intentional. Production workloads benefit more from temporary over-provisioning than from aggressive cost optimization.
 
 ---
 
@@ -80,7 +80,7 @@ This asymmetry is intentional. Production workloads benefit more from temporary 
 09:50  CPU 18%  →  8 Pods  (continues gradually)
 ```
 
-Scale-up is near-immediate; scale-down is gradual. This is exactly the behaviour Kubernetes is designed to produce.
+Scale-up is near-immediate; scale-down is gradual. This is exactly the behavior Kubernetes is designed to produce.
 
 ---
 
@@ -114,7 +114,7 @@ Without safeguards, Kubernetes would oscillate. Instead:
 - **Scaling policies** limit how many replicas change per interval
 - The **control loop** re-evaluates every 15 seconds
 
-Together, these produce smooth behaviour even when metrics fluctuate around the target.
+Together, these produce smooth behavior even when metrics fluctuate around the target.
 
 ---
 
@@ -128,7 +128,7 @@ Together, these produce smooth behaviour even when metrics fluctuate around the 
 | Scaling Policies | Limits scaling speed |
 | Replica Limits | Define minimum and maximum capacity |
 
-Scaling behaviour is the result of all these mechanisms working together.
+Scaling behavior is the result of all these mechanisms working together.
 
 ---
 
@@ -139,7 +139,7 @@ Demand increases  →  Scale immediately
 Demand decreases  →  Wait → Verify → Scale gradually
 ```
 
-This strategy minimises user impact while avoiding unnecessary infrastructure costs.
+This strategy minimizes user impact while avoiding unnecessary infrastructure costs.
 
 ---
 
@@ -165,7 +165,7 @@ This strategy minimises user impact while avoiding unnecessary infrastructure co
 ## Key Takeaways
 
 - Scale-up and scale-down are intentionally asymmetric
-- Kubernetes prioritises availability over immediate cost savings
+- Kubernetes prioritizes availability over immediate cost savings
 - Scale-up is aggressive; scale-down is deliberately conservative
-- Scaling behaviour results from the interaction of metrics, policies, stabilization windows, and replica limits
+- Scaling behavior results from the interaction of metrics, policies, stabilization windows, and replica limits
 - Understanding this asymmetry is essential for designing predictable autoscaling strategies

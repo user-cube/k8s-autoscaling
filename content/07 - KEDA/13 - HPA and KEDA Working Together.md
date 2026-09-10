@@ -25,7 +25,6 @@ The complete autoscaling pipeline is shown below.
 flowchart LR
 
 ExternalEvent["External Event"] --> KEDA --> ExternalMetric["External Metric"] --> HorizontalPodAutoscaler --> Deployment --> Pods
-
 ```
 
 KEDA is responsible for detecting workload demand.
@@ -72,7 +71,6 @@ Suppose a RabbitMQ queue suddenly receives new messages.
 
 ```text
 Queue
-
 500 Messages
 ```
 
@@ -80,25 +78,15 @@ The sequence is:
 
 ```text
 RabbitMQ
-
 ↓
-
 KEDA
-
 ↓
-
 External Metric
-
 ↓
-
 HPA
-
 ↓
-
 Deployment
-
 ↓
-
 Pods
 ```
 
@@ -114,13 +102,9 @@ Conceptually:
 
 ```text
 ScaledObject
-
 ↓
-
 KEDA
-
 ↓
-
 Horizontal Pod Autoscaler
 ```
 
@@ -136,13 +120,9 @@ Whenever the ScaledObject changes:
 
 ```text
 Update ScaledObject
-
 ↓
-
 KEDA
-
 ↓
-
 Update HPA
 ```
 
@@ -189,21 +169,13 @@ Example:
 
 ```text
 CPU
-
 ↓
-
 HPA
-
 --------------------
-
 RabbitMQ
-
 ↓
-
 KEDA
-
 ↓
-
 HPA
 ```
 
@@ -217,9 +189,7 @@ Suppose KEDA increases the replica count from:
 
 ```text
 2 Pods
-
 ↓
-
 40 Pods
 ```
 
@@ -229,13 +199,9 @@ If cluster capacity is insufficient:
 
 ```text
 Pending Pods
-
 ↓
-
 Cluster Autoscaler
-
 ↓
-
 New Worker Nodes
 ```
 
@@ -245,7 +211,6 @@ The complete autoscaling chain becomes:
 flowchart LR
 
 ExternalEvent --> KEDA --> HPA --> Deployment --> Scheduler --> ClusterAutoscaler --> WorkerNodes["Worker Nodes"]
-
 ```
 
 This demonstrates how KEDA integrates with the broader Kubernetes autoscaling ecosystem.
@@ -272,25 +237,17 @@ This modular approach follows Kubernetes' controller design philosophy, where ea
 > [!tip]
 > Treat the ScaledObject as the primary configuration resource. Avoid manually modifying the Horizontal Pod Autoscaler created by KEDA.
 
----
-
 > [!tip]
 > Monitor both KEDA and the generated HPA to understand how scaling decisions are made.
-
----
 
 > [!tip]
 > Combine KEDA with the Cluster Autoscaler to achieve full application and infrastructure elasticity.
 
----
-
 > [!warning]
 > Manual changes to a KEDA-managed HPA may be overwritten during the next reconciliation cycle.
 
----
-
 > [!note]
-> KEDA extends the Horizontal Pod Autoscaler—it does not replace it. The HPA remains responsible for updating Deployment replica counts.
+> KEDA extends the Horizontal Pod Autoscaler — it does not replace it. The HPA remains responsible for updating Deployment replica counts.
 
 ---
 

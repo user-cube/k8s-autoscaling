@@ -119,7 +119,7 @@ The VPA does not increase redundancy — it improves the sizing of existing Pods
 
 Applications with fast startup times are excellent candidates for the HPA — new replicas become ready quickly and begin serving traffic.
 
-Applications with slow startup times often benefit more from the VPA, because increasing resources on existing Pods may be more effective than waiting for additional replicas to initialise.
+Applications with slow startup times often benefit more from the VPA, because increasing resources on existing Pods may be more effective than waiting for additional replicas to initialize.
 
 ---
 

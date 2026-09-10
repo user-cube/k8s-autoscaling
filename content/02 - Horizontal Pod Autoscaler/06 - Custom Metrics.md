@@ -32,7 +32,7 @@ The HPA treats these metrics exactly like CPU or memory once they are available 
 
 ## Why Use Custom Metrics?
 
-Infrastructure metrics measure resource consumption. Custom metrics measure **application behaviour**. These two are not always related.
+Infrastructure metrics measure resource consumption. Custom metrics measure **application behavior**. These two are not always related.
 
 ```
 Current CPU: 22%
@@ -163,7 +163,7 @@ Ingress → requests per second → HPA
 
 | Benefit | Description |
 |---|---|
-| Better Representation | Metrics describe actual application behaviour, not infrastructure usage |
+| Better Representation | Metrics describe actual application behavior, not infrastructure usage |
 | More Accurate Scaling | Scaling decisions align directly with user demand |
 | Business-Oriented | Scale on meaningful indicators — orders, active customers, API transactions |
 | Reduced Over-Provisioning | Scale only when business activity increases, not when CPU happens to spike |
@@ -178,7 +178,7 @@ Custom metrics introduce additional operational complexity. If any component in 
 Application → Prometheus → Adapter → HPA
 ```
 
-Applications must also expose high-quality metrics. Poorly designed or rapidly fluctuating metrics lead to unstable scaling behaviour. Choosing the correct metric is often more important than choosing the correct threshold.
+Applications must also expose high-quality metrics. Poorly designed or rapidly fluctuating metrics lead to unstable scaling behavior. Choosing the correct metric is often more important than choosing the correct threshold.
 
 ---
 
@@ -203,7 +203,7 @@ Applications must also expose high-quality metrics. Poorly designed or rapidly f
 
 ## Key Takeaways
 
-- Custom metrics allow scaling based on application-specific behaviour rather than infrastructure usage
+- Custom metrics allow scaling based on application-specific behavior rather than infrastructure usage
 - Metrics originate from workloads running **inside** the Kubernetes cluster
 - Prometheus collects these metrics; the Prometheus Adapter translates them into `custom.metrics.k8s.io`
 - The HPA consumes custom metrics exactly as it consumes CPU or memory

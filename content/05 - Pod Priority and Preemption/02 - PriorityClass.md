@@ -82,7 +82,7 @@ A Deployment configured with `priorityClassName: production` automatically recei
 
 Many Kubernetes distributions include predefined PriorityClasses for system components:
 
-- `system-cluster-critical` — Used by cluster-level infrastructure (CoreDNS, kube-proxy, networking components)
+- `system-cluster-critical` — Used by cluster-level infrastructure (CoreDNS, cluster-scoped add-ons, networking components)
 - `system-node-critical` — Used by node-level Pods (kube-proxy, control-plane static pods, node problem detector)
 
 > [!warning]

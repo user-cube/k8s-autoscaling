@@ -46,7 +46,7 @@ With a 5-minute window, Kubernetes evaluates all recommendations in that period 
 
 ## Scale-Up Stabilization
 
-Scale-up prioritises availability. Insufficient capacity harms users, so Kubernetes scales up immediately by default:
+Scale-up prioritizes availability. Insufficient capacity harms users, so Kubernetes scales up immediately by default:
 
 ```yaml
 scaleUp:
@@ -116,7 +116,7 @@ behavior:
 | | Short Window | Long Window |
 |---|---|---|
 | Suitable for | Dev environments, fast-starting apps | Production, user-facing APIs |
-| Advantages | Faster cost optimisation | Improved stability, fewer restarts |
+| Advantages | Faster cost optimization | Improved stability, fewer restarts |
 | Disadvantages | Higher oscillation risk | Resources held longer than needed |
 
 Match the window to your application's typical traffic patterns rather than using arbitrary values.

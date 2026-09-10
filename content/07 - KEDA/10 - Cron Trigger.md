@@ -38,7 +38,6 @@ Instead, Kubernetes can prepare capacity **before** demand arrives.
 flowchart LR
 
 Schedule["Cron Schedule"] --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
-
 ```
 
 Unlike other KEDA triggers, no external messaging system or monitoring platform is required.
@@ -55,13 +54,9 @@ When the configured schedule is reached:
 
 ```text
 Current Time
-
 ↓
-
 Matches Schedule
-
 ↓
-
 Scale Workload
 ```
 
@@ -69,9 +64,7 @@ Outside the scheduled window:
 
 ```text
 Outside Schedule
-
 ↓
-
 Return to Normal Replica Count
 ```
 
@@ -85,17 +78,11 @@ A simplified Cron Trigger might look like this.
 
 ```yaml
 triggers:
-
 - type: cron
-
   metadata:
-
     timezone: Europe/London
-
     start: "0 08 * * *"
-
     end: "0 18 * * *"
-
     desiredReplicas: "10"
 ```
 
@@ -116,13 +103,9 @@ Normal state:
 
 ```text
 Time
-
 02:00
-
 ↓
-
 Pods
-
 0
 ```
 
@@ -130,11 +113,8 @@ At the start of the working day:
 
 ```text
 08:00
-
 ↓
-
 Pods
-
 10
 ```
 
@@ -142,11 +122,8 @@ At the end of the working day:
 
 ```text
 18:00
-
 ↓
-
 Pods
-
 0
 ```
 
@@ -158,27 +135,16 @@ The application automatically scales according to the business schedule.
 
 ```text
 Time
-
 00:00
-
 ↓
-
 0 Pods
-
 --------------------
-
 08:00
-
 ↓
-
 10 Pods
-
 --------------------
-
 18:00
-
 ↓
-
 0 Pods
 ```
 
@@ -227,9 +193,7 @@ Example:
 
 ```yaml
 triggers:
-
 - type: cron
-
 - type: prometheus
 ```
 
@@ -237,17 +201,11 @@ Conceptually:
 
 ```text
 Office Hours
-
 ↓
-
 Minimum Capacity
-
 --------------------
-
 High Traffic
-
 ↓
-
 Additional Scaling
 ```
 
@@ -332,22 +290,14 @@ For unpredictable workloads, event-based triggers such as RabbitMQ, Kafka, or Pr
 > [!tip]
 > Use the Cron Trigger for workloads with predictable usage patterns, such as office-hour applications or scheduled maintenance tasks.
 
----
-
 > [!tip]
 > Configure the correct timezone to ensure scaling occurs at the expected local time.
-
----
 
 > [!tip]
 > Combine the Cron Trigger with event-based triggers when applications require both scheduled baseline capacity and dynamic autoscaling.
 
----
-
 > [!warning]
 > The Cron Trigger responds only to time-based schedules. Unexpected workload spikes outside the configured schedule require additional event-based triggers.
-
----
 
 > [!note]
 > The Cron Trigger scales workloads according to predefined schedules rather than application metrics or external events.

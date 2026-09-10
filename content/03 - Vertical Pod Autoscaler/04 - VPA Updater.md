@@ -5,7 +5,7 @@ description: Learn how the VPA Updater applies resource recommendations by safel
 
 # 04 - VPA Updater
 
-The **Updater** transforms the Recommender's resource recommendations into actual cluster changes. While the Recommender only analyses workloads, the Updater actively determines **when** Pods should be recreated so that new resource requests can take effect — it is the bridge between recommendation and execution.
+The **Updater** transforms the Recommender's resource recommendations into actual cluster changes. While the Recommender only analyzes workloads, the Updater actively determines **when** Pods should be recreated so that new resource requests can take effect — it is the bridge between recommendation and execution.
 
 ---
 

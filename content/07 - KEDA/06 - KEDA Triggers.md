@@ -40,7 +40,6 @@ Whenever the trigger condition is met, KEDA begins the scaling process.
 flowchart LR
 
 ExternalSystem["External System"] --> Trigger --> KEDA --> HorizontalPodAutoscaler --> Deployment --> Pods
-
 ```
 
 The trigger acts as the bridge between an external event source and Kubernetes.
@@ -55,7 +54,6 @@ Every trigger follows the same workflow.
 flowchart LR
 
 Read["Read External System"] --> Evaluate["Evaluate Threshold"] --> Metric["Generate Metric"] --> HPA["Horizontal Pod Autoscaler"] --> Scale["Scale Workload"]
-
 ```
 
 Although each trigger communicates with a different external system, their behavior is remarkably consistent.
@@ -68,11 +66,8 @@ Every trigger contains three basic elements.
 
 ```yaml
 triggers:
-
 - type:
-
   metadata:
-
   authenticationRef:
 ```
 
@@ -118,9 +113,7 @@ Example:
 
 ```yaml
 metadata:
-
   queueName: orders
-
   queueLength: "50"
 ```
 
@@ -141,7 +134,6 @@ Example:
 
 ```yaml
 authenticationRef:
-
   name: rabbitmq-auth
 ```
 
@@ -157,13 +149,9 @@ A simplified RabbitMQ trigger might look like this.
 
 ```yaml
 triggers:
-
 - type: rabbitmq
-
   metadata:
-
     queueName: orders
-
     queueLength: "50"
 ```
 
@@ -171,21 +159,15 @@ Conceptually:
 
 ```text
 RabbitMQ
-
 ↓
-
 Orders Queue
-
 ↓
-
 50 Messages
-
 ↓
-
 Scale
 ```
 
-Whenever the queue exceeds fifty messages, KEDA increases the number of Pods.
+As the queue grows beyond 50 messages per Pod, KEDA increases the number of Pods.
 
 ---
 
@@ -197,11 +179,8 @@ Example:
 
 ```yaml
 triggers:
-
 - type: rabbitmq
-
 - type: prometheus
-
 - type: cron
 ```
 
@@ -209,21 +188,13 @@ Conceptually:
 
 ```text
 RabbitMQ
-
 ↓
-
 Prometheus
-
 ↓
-
 Cron
-
 ↓
-
 KEDA
-
 ↓
-
 Deployment
 ```
 
@@ -280,13 +251,9 @@ Every thirty seconds:
 
 ```text
 Read Trigger
-
 ↓
-
 Evaluate
-
 ↓
-
 Update Metric
 ```
 
@@ -302,17 +269,11 @@ Suppose a ScaledObject defines:
 
 ```text
 RabbitMQ
-
 ↓
-
 Queue Length
-
 --------------------
-
 Prometheus
-
 ↓
-
 HTTP Requests
 ```
 
@@ -343,22 +304,14 @@ For many asynchronous systems, the amount of pending work is a much better indic
 > [!tip]
 > Choose trigger types that directly represent business demand rather than indirect infrastructure metrics.
 
----
-
 > [!tip]
 > Keep trigger thresholds simple and validate them using production observations.
-
----
 
 > [!tip]
 > Separate authentication from trigger definitions by using TriggerAuthentication resources.
 
----
-
 > [!warning]
 > Very low trigger thresholds may cause unnecessary scaling events, while thresholds that are too high may delay workload processing.
-
----
 
 > [!note]
 > Every KEDA ScaledObject requires at least one trigger. Without a trigger, KEDA has no external event source to monitor.
